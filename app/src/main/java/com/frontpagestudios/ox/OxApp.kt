@@ -16,6 +16,8 @@ class OxApp : Application() {
         com.frontpagestudios.ox.data.Places.init(this)
         Sfx.init(this)
         Notifs.createChannels(this)
+        com.frontpagestudios.ox.tracking.Reminder.channel(this)
+        com.frontpagestudios.ox.ui.theme.OxAccent.color = androidx.compose.ui.graphics.Color(Prefs.accent.value)
         Configuration.getInstance().apply {
             userAgentValue = "OX-Android/${BuildConfig.VERSION_NAME} ($packageName)"
             osmdroidBasePath = File(cacheDir, "osm")

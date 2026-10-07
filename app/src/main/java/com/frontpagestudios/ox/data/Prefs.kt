@@ -24,6 +24,13 @@ object Prefs {
     val bikeKmpl: StateFlow<Float> = _bikeKmpl
     private val _carKmpl = MutableStateFlow(15f)
     val carKmpl: StateFlow<Float> = _carKmpl
+    private val _accent = MutableStateFlow(0xFFD2F53C)
+    val accent: StateFlow<Long> = _accent
+    private val _reminder = MutableStateFlow(false)
+    val reminder: StateFlow<Boolean> = _reminder
+    /** minutes after midnight, or -1 = work it out from my trips */
+    private val _reminderMinute = MutableStateFlow(-1)
+    val reminderMinute: StateFlow<Int> = _reminderMinute
     private val _fuelPrice = MutableStateFlow(0f)
     val fuelPrice: StateFlow<Float> = _fuelPrice
 
@@ -39,6 +46,9 @@ object Prefs {
         _bikeKmpl.value = sp.getFloat("bikeKmpl", 45f)
         _carKmpl.value = sp.getFloat("carKmpl", 15f)
         _fuelPrice.value = sp.getFloat("fuelPrice", 0f)
+        _accent.value = sp.getLong("accent", 0xFFD2F53C)
+        _reminder.value = sp.getBoolean("reminder", false)
+        _reminderMinute.value = sp.getInt("reminderMinute", -1)
     }
 
     fun setOnboarded(v: Boolean) { _onboarded.value = v; sp.edit().putBoolean("onboarded", v).apply() }
@@ -48,6 +58,11 @@ object Prefs {
     fun setSound(v: Boolean) { _sound.value = v; sp.edit().putBoolean("sound", v).apply() }
     fun setBikeKmpl(v: Float) { _bikeKmpl.value = v; sp.edit().putFloat("bikeKmpl", v).apply() }
     fun setCarKmpl(v: Float) { _carKmpl.value = v; sp.edit().putFloat("carKmpl", v).apply() }
+    fun setAccent(v: Long) { _accent.value = v; sp.edit().putLong("accent", v).apply() }
+    fun setReminder(v: Boolean) { _reminder.value = v; sp.edit().putBoolean("reminder", v).apply() }
+    fun setReminderMinute(v: Int) { _reminderMinute.value = v; sp.edit().putInt("reminderMinute", v).apply() }
+    fun raw(): SharedPreferences = sp
+
     fun setFuelPrice(v: Float) { _fuelPrice.value = v; sp.edit().putFloat("fuelPrice", v).apply() }
 
     /** Fuel cost in rupees for a distance, or null when no price is set / walking. */

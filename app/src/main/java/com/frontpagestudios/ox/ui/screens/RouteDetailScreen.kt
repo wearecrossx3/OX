@@ -153,6 +153,17 @@ private fun RouteDetail(g: RouteGroup, nav: NavHostController, onBack: () -> Uni
                     StatTile(String.format(Locale.US, "%.1f", stopStats.first), null, "Avg stops / signals", Modifier.weight(1f))
                     StatTile(Format.duration(stopStats.second), null, "Avg time waiting", Modifier.weight(1f))
                 }
+                val calm = remember(g.key, g.count) {
+                    g.trips.filter { it.mode.isVehicle }.minByOrNull { com.frontpagestudios.ox.util.Stops.find(it.points).size }
+                }
+                if (calm != null && g.count > 1) {
+                    Spacer(Modifier.height(10.dp))
+                    val n = com.frontpagestudios.ox.util.Stops.find(calm.points).size
+                    StatTile(
+                        "$n", if (n == 1) "stop" else "stops", "Calmest trip · ${Format.day(calm.start)} — tap to see its path",
+                        Modifier.fillMaxWidth(), lime = true, onClick = { nav.navigate(Routes.trip(calm.id)) },
+                    )
+                }
             }
 
             if (chrono.size >= 2) {

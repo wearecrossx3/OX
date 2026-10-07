@@ -5,6 +5,9 @@ import androidx.compose.material3.Typography
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -14,7 +17,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.frontpagestudios.ox.R
 
-val Lime = Color(0xFFD2F53C)
+/** Accent chosen in Settings → App color. Reading it in composition keeps screens in sync. */
+object OxAccent {
+    var color by androidx.compose.runtime.mutableStateOf(Color(0xFFD2F53C))
+    val themes = listOf(
+        "Lime Noir" to 0xFFD2F53C,
+        "Electric Cyan" to 0xFF3CF0E0,
+        "Signal Orange" to 0xFFFF6A2B,
+        "Ultra Violet" to 0xFFA98BFF,
+        "Sun Yellow" to 0xFFFFD23F,
+        "Hot Pink" to 0xFFFF5CA2,
+        "Mint" to 0xFF6FF0B0,
+        "Ice Blue" to 0xFF7CC0FF,
+    )
+}
+val Lime: Color get() = OxAccent.color
 val LimeSoft = Color(0xFFE8FA9A)
 val Ink = Color(0xFF0D0D0D)
 val Graphite = Color(0xFF1A1A1A)
@@ -25,7 +42,7 @@ val Mist = Color(0xFFE3E3DE)
 val Muted = Color(0xFF8C8C86)
 val Danger = Color(0xFFFF5A4E)
 val Amber = Color(0xFFFFB020)
-const val LimeArgb = 0xFFD2F53C.toInt()
+val LimeArgb: Int get() = OxAccent.color.toArgb()
 
 @OptIn(ExperimentalTextApi::class)
 private fun grotesk(w: Int, weight: FontWeight) =

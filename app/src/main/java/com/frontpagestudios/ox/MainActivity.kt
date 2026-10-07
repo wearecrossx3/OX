@@ -15,12 +15,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 sealed interface DeepLink {
     data object Live : DeepLink
     data class OpenTrip(val id: String) : DeepLink
+    data object StartTrip : DeepLink
 }
 
 class MainActivity : ComponentActivity() {
     companion object {
         const val EXTRA_OPEN_LIVE = "open_live"
         const val EXTRA_OPEN_TRIP = "open_trip"
+        const val EXTRA_START_TRIP = "start_trip"
     }
 
     private val deepLink = MutableStateFlow<DeepLink?>(null)
@@ -49,11 +51,13 @@ class MainActivity : ComponentActivity() {
     private fun handle(intent: Intent?) {
         intent ?: return
         when {
+            intent.getBooleanExtra(EXTRA_START_TRIP, false) -> deepLink.value = DeepLink.StartTrip
             intent.getBooleanExtra(EXTRA_OPEN_LIVE, false) -> deepLink.value = DeepLink.Live
             intent.getStringExtra(EXTRA_OPEN_TRIP) != null ->
                 deepLink.value = DeepLink.OpenTrip(intent.getStringExtra(EXTRA_OPEN_TRIP)!!)
         }
         intent.removeExtra(EXTRA_OPEN_LIVE)
         intent.removeExtra(EXTRA_OPEN_TRIP)
+        intent.removeExtra(EXTRA_START_TRIP)
     }
 }

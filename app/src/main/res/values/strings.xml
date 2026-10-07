@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">OX</string>
+    <string name="widget_desc">Your last trip and a one-tap Start</string>
 </resources>

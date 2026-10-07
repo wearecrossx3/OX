@@ -61,6 +61,13 @@ import com.frontpagestudios.ox.data.Places
 import com.frontpagestudios.ox.ui.components.SavePlaceDialog
 import com.frontpagestudios.ox.ui.components.icon
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material.icons.rounded.CloudDownload
+import androidx.compose.material.icons.rounded.CloudUpload
+import androidx.compose.material.icons.rounded.NotificationsActive
+import androidx.compose.material.icons.rounded.TableChart
+import kotlinx.coroutines.launch
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.runtime.mutableStateOf
@@ -78,6 +85,7 @@ import com.frontpagestudios.ox.ui.theme.Muted
 import com.frontpagestudios.ox.ui.theme.Snow
 import com.frontpagestudios.ox.util.Perms
 
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
 fun SettingsTab() {
     val ctx = LocalContext.current
@@ -98,6 +106,38 @@ fun SettingsTab() {
     val canAuto = Perms.canAuto(ctx)
     val places by Places.places.collectAsState()
     var addingPlace by remember { mutableStateOf(false) }
+    val accent by Prefs.accent.collectAsState()
+    val reminderOn by Prefs.reminder.collectAsState()
+    val reminderMin by Prefs.reminderMinute.collectAsState()
+    val trips by com.frontpagestudios.ox.data.TripRepo.trips.collectAsState()
+    val io = androidx.compose.runtime.rememberCoroutineScope()
+
+    fun writeTo(uri: android.net.Uri?, text: () -> String, done: String) {
+        if (uri == null) return
+        io.launch {
+            val ok = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                runCatching { ctx.contentResolver.openOutputStream(uri)?.use { it.write(text().toByteArray()) }; true }.getOrDefault(false)
+            }
+            Toast.makeText(ctx, if (ok) done else "Couldn't save the file", Toast.LENGTH_SHORT).show()
+        }
+    }
+    val csvLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/csv")) { uri ->
+        writeTo(uri, { com.frontpagestudios.ox.util.Export.csv(trips) }, "Exported ${trips.size} trips")
+    }
+    val backupLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
+        writeTo(uri, { com.frontpagestudios.ox.data.TripRepo.exportJson() }, "Backup saved")
+    }
+    val restoreLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) io.launch {
+            val n = runCatching {
+                val text = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                    ctx.contentResolver.openInputStream(uri)?.use { it.readBytes().decodeToString() } ?: ""
+                }
+                com.frontpagestudios.ox.data.TripRepo.importJson(text)
+            }.getOrNull()
+            Toast.makeText(ctx, if (n == null) "That file isn't an OX backup" else "Restored $n trips", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     if (addingPlace) {
         SavePlaceDialog(title = "Save this spot", onDismiss = { addingPlace = false }) { name, kind ->
@@ -139,6 +179,36 @@ fun SettingsTab() {
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
                 modifier = Modifier.fillMaxWidth(),
             )
+        }
+
+        Spacer(Modifier.height(22.dp))
+        SectionLabel("App color")
+        Spacer(Modifier.height(8.dp))
+        Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(32.dp)).background(Snow).padding(16.dp)) {
+            androidx.compose.foundation.layout.FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                com.frontpagestudios.ox.ui.theme.OxAccent.themes.forEach { (label, argb) ->
+                    val on = accent == argb
+                    Box(
+                        Modifier.pressable {
+                            Prefs.setAccent(argb)
+                            com.frontpagestudios.ox.ui.theme.OxAccent.color = androidx.compose.ui.graphics.Color(argb)
+                            com.frontpagestudios.ox.data.TripRepo.changed()
+                        }.size(52.dp).clip(CircleShape).background(if (on) Ink else Mist),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Box(Modifier.size(if (on) 34.dp else 40.dp).clip(CircleShape).background(androidx.compose.ui.graphics.Color(argb)))
+                    }
+                }
+            }
+            Spacer(Modifier.height(10.dp))
+            Text(
+                com.frontpagestudios.ox.ui.theme.OxAccent.themes.firstOrNull { it.second == accent }?.first ?: "Custom",
+                style = MaterialTheme.typography.titleMedium, color = Ink,
+            )
+            Text("Changes the whole app, widget and notifications.", style = MaterialTheme.typography.bodySmall, color = Muted)
         }
 
         Spacer(Modifier.height(22.dp))
@@ -221,6 +291,56 @@ fun SettingsTab() {
         }
 
         Spacer(Modifier.height(22.dp))
+        SectionLabel("Leave-time reminder")
+        Spacer(Modifier.height(8.dp))
+        Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(32.dp)).background(Snow).padding(8.dp)) {
+            val plan = remember(reminderOn, reminderMin, trips) { com.frontpagestudios.ox.tracking.Reminder.plan(trips) }
+            ToggleRow(
+                Icons.Rounded.NotificationsActive, "Remind me when to leave",
+                if (plan == null) "Needs 2+ trips on the same route first" else "Mon–Sat, before your usual trip",
+                reminderOn,
+            ) { on ->
+                Prefs.setReminder(on)
+                com.frontpagestudios.ox.tracking.Reminder.schedule(ctx, trips)
+                if (on && plan == null) Toast.makeText(ctx, "It will start once OX learns your usual route", Toast.LENGTH_LONG).show()
+            }
+            if (reminderOn && plan != null) {
+                Row(Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text(com.frontpagestudios.ox.tracking.Reminder.label(plan.minute), style = MaterialTheme.typography.headlineMedium, color = Ink)
+                        Text(if (reminderMin < 0) "Auto · 10 min before you usually leave" else "Set by you", style = MaterialTheme.typography.bodySmall, color = Muted)
+                    }
+                    Box(
+                        Modifier.pressable {
+                            Prefs.setReminderMinute(((plan.minute - 5) + 1440) % 1440)
+                            com.frontpagestudios.ox.tracking.Reminder.schedule(ctx, trips)
+                        }.size(44.dp).clip(CircleShape).background(Mist),
+                        contentAlignment = Alignment.Center,
+                    ) { Text("−5", style = MaterialTheme.typography.labelLarge, color = Ink) }
+                    Spacer(Modifier.width(8.dp))
+                    Box(
+                        Modifier.pressable {
+                            Prefs.setReminderMinute((plan.minute + 5) % 1440)
+                            com.frontpagestudios.ox.tracking.Reminder.schedule(ctx, trips)
+                        }.size(44.dp).clip(CircleShape).background(Mist),
+                        contentAlignment = Alignment.Center,
+                    ) { Text("+5", style = MaterialTheme.typography.labelLarge, color = Ink) }
+                    if (reminderMin >= 0) {
+                        Spacer(Modifier.width(8.dp))
+                        Box(
+                            Modifier.pressable {
+                                Prefs.setReminderMinute(-1)
+                                com.frontpagestudios.ox.tracking.Reminder.schedule(ctx, trips)
+                            }.height(44.dp).clip(RoundedCornerShape(22.dp)).background(Lime).padding(horizontal = 14.dp),
+                            contentAlignment = Alignment.Center,
+                        ) { Text("Auto", style = MaterialTheme.typography.labelLarge, color = Ink) }
+                    }
+                }
+                Text(plan.body, style = MaterialTheme.typography.bodySmall, color = Muted, modifier = Modifier.padding(start = 12.dp, end = 12.dp, bottom = 10.dp))
+            }
+        }
+
+        Spacer(Modifier.height(22.dp))
         SectionLabel("Fuel cost (optional)")
         Spacer(Modifier.height(8.dp))
         Column(
@@ -242,6 +362,21 @@ fun SettingsTab() {
         Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(32.dp)).background(Snow).padding(8.dp)) {
             ToggleRow(Icons.AutoMirrored.Rounded.VolumeUp, "Sound effects", "Taps, trip start/finish, every-km ping", sound) { Prefs.setSound(it) }
             ToggleRow(Icons.Rounded.Vibration, "Haptics", "Subtle vibration on taps", haptics) { Prefs.setHaptics(it) }
+        }
+
+        Spacer(Modifier.height(22.dp))
+        SectionLabel("Your data")
+        Spacer(Modifier.height(8.dp))
+        Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(32.dp)).background(Snow).padding(8.dp)) {
+            DataRow(Icons.Rounded.TableChart, "Export to Excel (CSV)", "Every trip with time, km, stops, fuel") {
+                csvLauncher.launch("OX-trips.csv")
+            }
+            DataRow(Icons.Rounded.CloudUpload, "Back up trips", "Save a file — pick Google Drive to keep it safe") {
+                backupLauncher.launch("OX-backup.json")
+            }
+            DataRow(Icons.Rounded.CloudDownload, "Restore from backup", "Bring trips back on a new phone") {
+                restoreLauncher.launch(arrayOf("application/json", "*/*"))
+            }
         }
 
         Spacer(Modifier.height(22.dp))
@@ -330,6 +465,23 @@ private fun NumberRow(label: String, unit: String, value: Float, onChange: (Floa
                 keyboardOptions = KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Decimal),
                 modifier = Modifier.fillMaxWidth(),
             )
+        }
+    }
+}
+
+@Composable
+private fun DataRow(icon: ImageVector, title: String, body: String, onClick: () -> Unit) {
+    Row(
+        Modifier.pressable(onClick = onClick).fillMaxWidth().clip(RoundedCornerShape(24.dp)).padding(12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(Modifier.size(42.dp).clip(CircleShape).background(Mist), contentAlignment = Alignment.Center) {
+            Icon(icon, null, tint = Ink, modifier = Modifier.size(20.dp))
+        }
+        Spacer(Modifier.width(12.dp))
+        Column(Modifier.weight(1f)) {
+            Text(title, style = MaterialTheme.typography.titleMedium, color = Ink)
+            Text(body, style = MaterialTheme.typography.bodySmall, color = Muted)
         }
     }
 }

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_bg"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="44dp"
+            android:layout_height="22dp"
+            android:scaleType="fitCenter"
+            android:contentDescription="OX"
+            android:src="@drawable/ic_widget_logo" />
+
+        <TextView
+            android:id="@+id/w_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="end"
+            android:text="Last trip"
+            android:textColor="#80FFFFFF"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/w_route"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:text="No trips yet"
+        android:textColor="#FFFFFF"
+        android:textSize="15sp"
+        android:fontFamily="sans-serif-medium" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="bottom"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/w_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="—"
+                android:textColor="#D2F53C"
+                android:textSize="30sp"
+                android:fontFamily="sans-serif-medium" />
+
+            <TextView
+                android:id="@+id/w_avg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tap Start to record"
+                android:textColor="#99FFFFFF"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/w_start"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:background="@drawable/widget_btn"
+            android:gravity="center"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:text="Start"
+            android:textColor="#0D0D0D"
+            android:textSize="15sp"
+            android:fontFamily="sans-serif-medium" />
+    </LinearLayout>
+</LinearLayout>

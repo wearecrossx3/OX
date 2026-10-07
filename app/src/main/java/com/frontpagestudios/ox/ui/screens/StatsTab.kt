@@ -26,6 +26,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material.icons.rounded.Bolt
+import androidx.compose.material.icons.rounded.CalendarMonth
+import androidx.compose.material.icons.rounded.Traffic
 import androidx.compose.material.icons.rounded.Speed
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -143,6 +145,11 @@ private fun StatsTabBody(nav: NavHostController) {
             WeekBars(w.perDayMin, dayLabels, w.todayIndex, Modifier.fillMaxWidth().height(170.dp))
         }
         Spacer(Modifier.height(10.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            NavCard("Monthly recap", "Share-ready card", Icons.Rounded.CalendarMonth, Lime, Modifier.weight(1f)) { nav.navigate("recap") }
+            NavCard("Signal hotspots", "Where you wait most", Icons.Rounded.Traffic, com.frontpagestudios.ox.ui.theme.Amber, Modifier.weight(1f)) { nav.navigate("hotspots") }
+        }
+        Spacer(Modifier.height(10.dp))
 
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             val (dv, du) = Format.distanceParts(w.totalDist)
@@ -241,4 +248,19 @@ private fun Highlight(label: String, trip: Trip, onClick: () -> Unit) {
 fun StatsTab(nav: NavHostController) {
     val places by com.frontpagestudios.ox.data.Places.places.collectAsState()
     androidx.compose.runtime.key(places) { StatsTabBody(nav) }
+}
+
+@Composable
+private fun NavCard(
+    title: String, body: String, icon: androidx.compose.ui.graphics.vector.ImageVector,
+    accent: androidx.compose.ui.graphics.Color, modifier: Modifier = Modifier, onClick: () -> Unit,
+) {
+    Column(modifier.pressable(onClick = onClick).clip(RoundedCornerShape(30.dp)).background(Snow).padding(16.dp)) {
+        Box(Modifier.size(40.dp).clip(CircleShape).background(accent), contentAlignment = Alignment.Center) {
+            Icon(icon, null, tint = Ink, modifier = Modifier.size(20.dp))
+        }
+        Spacer(Modifier.height(12.dp))
+        Text(title, style = MaterialTheme.typography.titleMedium, color = Ink)
+        Text(body, style = MaterialTheme.typography.bodySmall, color = Muted)
+    }
 }

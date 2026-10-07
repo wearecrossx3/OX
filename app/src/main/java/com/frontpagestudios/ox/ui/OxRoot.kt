@@ -59,6 +59,7 @@ fun startTrip(ctx: Context, nav: NavHostController, mode: TripMode) {
 @Composable
 fun OxRoot(deepLink: MutableStateFlow<DeepLink?>) {
     val nav = rememberNavController()
+    val ctx = androidx.compose.ui.platform.LocalContext.current
     val onboarded by Prefs.onboarded.collectAsState()
     val link by deepLink.collectAsState()
     val start = remember { if (Prefs.onboarded.value) Routes.MAIN else Routes.ONBOARD }
@@ -69,6 +70,7 @@ fun OxRoot(deepLink: MutableStateFlow<DeepLink?>) {
         when (l) {
             DeepLink.Live -> if (TrackingState.live.value != null) nav.navigate(Routes.LIVE) { launchSingleTop = true }
             is DeepLink.OpenTrip -> nav.navigate(Routes.trip(l.id)) { launchSingleTop = true }
+            DeepLink.StartTrip -> startTrip(ctx, nav, Prefs.vehicle.value)
         }
         deepLink.value = null
     }
@@ -106,6 +108,12 @@ fun OxRoot(deepLink: MutableStateFlow<DeepLink?>) {
         composable("route/{key}") { entry ->
             val key = android.net.Uri.decode(entry.arguments?.getString("key") ?: "")
             com.frontpagestudios.ox.ui.screens.RouteDetailScreen(routeKey = key, nav = nav, onBack = { nav.popBackStack() })
+        }
+        composable("recap") {
+            com.frontpagestudios.ox.ui.screens.RecapScreen(onBack = { nav.popBackStack() })
+        }
+        composable("hotspots") {
+            com.frontpagestudios.ox.ui.screens.HotspotsScreen(onBack = { nav.popBackStack() })
         }
         composable(Routes.TRIP) { entry ->
             val id = entry.arguments?.getString("id") ?: ""

@@ -79,5 +79,6 @@ class BootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         Prefs.init(context)
         if (Prefs.autoDetect.value) AutoDetect.enable(context)
+        if (Prefs.reminder.value) Reminder.scheduleAt(context, Prefs.raw().getInt("rem_min", 8 * 60))
     }
 }

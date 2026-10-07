@@ -17,6 +17,7 @@ import java.io.File
 /** Stores every trip as a small JSON file on the phone. No server, no account. */
 object TripRepo {
     private lateinit var dir: File
+    private lateinit var appCtx: Context
     private lateinit var liveFile: File
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -28,6 +29,7 @@ object TripRepo {
 
     fun init(context: Context) {
         if (::dir.isInitialized) return
+        appCtx = context.applicationContext
         dir = File(context.filesDir, "trips").apply { mkdirs() }
         liveFile = File(context.filesDir, "live.json")
         scope.launch {
@@ -37,6 +39,7 @@ object TripRepo {
                 ?: emptyList()
             _trips.value = list
             _loaded.value = true
+            changed()
         }
     }
 
@@ -45,11 +48,42 @@ object TripRepo {
     suspend fun save(trip: Trip) = withContext(Dispatchers.IO) {
         File(dir, "${trip.id}.json").writeText(tripToJson(trip).toString())
         _trips.update { list -> (listOf(trip) + list.filter { it.id != trip.id }).sortedByDescending { it.start } }
+        changed()
+    }
+
+    /** Keep the widget and the leave-time reminder in step with the trip list. */
+    fun changed() {
+        if (!::appCtx.isInitialized) return
+        val list = _trips.value
+        runCatching { com.frontpagestudios.ox.widget.OxWidget.refresh(appCtx, list) }
+        runCatching { com.frontpagestudios.ox.tracking.Reminder.schedule(appCtx, list) }
+    }
+
+    fun all(): List<Trip> = _trips.value
+
+    /** Full backup as JSON text. */
+    fun exportJson(): String = JSONArray().apply { _trips.value.forEach { put(tripToJson(it)) } }.toString()
+
+    /** Restores trips from a backup; returns how many were new. */
+    suspend fun importJson(text: String): Int = withContext(Dispatchers.IO) {
+        val arr = JSONArray(text)
+        val have = _trips.value.map { it.id }.toSet()
+        var added = 0
+        for (i in 0 until arr.length()) {
+            val t = runCatching { tripFromJson(arr.getJSONObject(i)) }.getOrNull() ?: continue
+            if (t.id in have) continue
+            File(dir, "${t.id}.json").writeText(tripToJson(t).toString())
+            _trips.update { (it + t).sortedByDescending { x -> x.start } }
+            added++
+        }
+        withContext(Dispatchers.Main) { changed() }
+        added
     }
 
     fun delete(id: String) {
         _trips.update { list -> list.filter { it.id != id } }
         scope.launch { File(dir, "$id.json").delete() }
+        changed()
     }
 
     // ---- live snapshot, so a trip survives if Android restarts the service ----
