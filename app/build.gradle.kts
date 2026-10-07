@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -6,7 +8,7 @@ plugins {
 
 val runNumber = System.getenv("GITHUB_RUN_NUMBER")?.toIntOrNull() ?: 1
 val releaseKeystore = rootProject.file("signing/ox-release.jks")
-val signingProps = java.util.Properties().apply {
+val signingProps = Properties().apply {
     val f = rootProject.file("signing/signing.properties")
     if (f.exists()) f.inputStream().use { load(it) }
 }

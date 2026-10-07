@@ -26,11 +26,17 @@ object Geo {
 
     /** Short human name for a spot: area / street / city. Works when online; null otherwise. */
     @Suppress("DEPRECATION")
-    fun place(context: Context, p: TripPoint): String? = runCatching {
+    fun place(context: Context, p: TripPoint): String? {
         if (!Geocoder.isPresent()) return null
-        val list = Geocoder(context, Locale.getDefault()).getFromLocation(p.lat, p.lon, 1)
-        val a = list?.firstOrNull() ?: return null
-        val feature = a.featureName?.takeIf { f -> f.any { it.isLetter() } && f.length < 28 }
-        a.subLocality ?: a.thoroughfare ?: feature ?: a.locality ?: a.subAdminArea
-    }.getOrNull()
+        return try {
+            val list = Geocoder(context, Locale.getDefault()).getFromLocation(p.lat, p.lon, 1)
+            val a = list?.firstOrNull()
+            if (a == null) null else {
+                val feature = a.featureName?.takeIf { f -> f.any { it.isLetter() } && f.length < 28 }
+                a.subLocality ?: a.thoroughfare ?: feature ?: a.locality ?: a.subAdminArea
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
 }
