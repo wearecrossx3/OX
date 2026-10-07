@@ -18,7 +18,10 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.frontpagestudios.ox.R
 import com.frontpagestudios.ox.ui.theme.LimeArgb
-import org.osmdroid.tileprovider.tilesource.XYTileSource
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory
+import org.osmdroid.views.overlay.CopyrightOverlay
+import android.graphics.ColorMatrix
+import android.graphics.ColorMatrixColorFilter
 import org.osmdroid.util.BoundingBox
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.CustomZoomButtonsController
@@ -28,25 +31,22 @@ import org.osmdroid.views.overlay.Polyline
 import org.osmdroid.views.overlay.infowindow.InfoWindow
 import org.osmdroid.views.overlay.infowindow.MarkerInfoWindow
 
-private val CartoDark = XYTileSource(
-    "CartoDarkMatter", 0, 20, 256, ".png",
-    arrayOf(
-        "https://a.basemaps.cartocdn.com/dark_all/",
-        "https://b.basemaps.cartocdn.com/dark_all/",
-        "https://c.basemaps.cartocdn.com/dark_all/",
-    ),
-    "© OpenStreetMap contributors © CARTO",
+/** OpenStreetMap standard tiles. Free, no key; needs the app's own user agent (set in OxApp) and attribution. */
+private val OsmTiles = TileSourceFactory.MAPNIK
+
+/** Turns the light OSM map into a calm dark-grey map: greyscale, inverted, slightly lifted. */
+private val DarkFilter = ColorMatrixColorFilter(
+    ColorMatrix(
+        floatArrayOf(
+            -0.26f, -0.50f, -0.09f, 0f, 236f,
+            -0.26f, -0.50f, -0.09f, 0f, 236f,
+            -0.26f, -0.50f, -0.09f, 0f, 240f,
+            0f, 0f, 0f, 1f, 0f,
+        )
+    )
 )
 
-private val CartoLight = XYTileSource(
-    "CartoPositron", 0, 20, 256, ".png",
-    arrayOf(
-        "https://a.basemaps.cartocdn.com/light_all/",
-        "https://b.basemaps.cartocdn.com/light_all/",
-        "https://c.basemaps.cartocdn.com/light_all/",
-    ),
-    "© OpenStreetMap contributors © CARTO",
-)
+private val LightFilter = ColorMatrixColorFilter(ColorMatrix().apply { setSaturation(0.25f) })
 
 /**
  * Map with a lime route line, an "O" marker at the origin and an "X" at the destination.
@@ -100,7 +100,8 @@ private class MapHolder(val ctx: Context, dark: Boolean) {
     private val bgColor = if (dark) 0xFF141414.toInt() else 0xFFE9E9E4.toInt()
 
     val map: MapView = MapView(ctx).apply {
-        setTileSource(if (dark) CartoDark else CartoLight)
+        setTileSource(OsmTiles)
+        overlayManager.tilesOverlay.setColorFilter(if (dark) DarkFilter else LightFilter)
         setMultiTouchControls(true)
         zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER)
         setTilesScaledToDpi(true)
@@ -139,6 +140,13 @@ private class MapHolder(val ctx: Context, dark: Boolean) {
     private var interactiveNow = true
 
     init {
+        map.overlays.add(CopyrightOverlay(ctx).apply {
+            setTextColor(if (dark) 0x99FFFFFF.toInt() else 0x99000000.toInt())
+            setTextSize(9)
+            setAlignRight(true)
+            setAlignBottom(true)
+            setOffset(8, 6)
+        })
         map.overlays.add(glow)
         map.overlays.add(line)
         map.overlays.add(startM)
