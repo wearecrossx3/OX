@@ -24,7 +24,21 @@ jobs:
           gradle-version: "8.9"
 
       - name: Build release APK
-        run: gradle assembleRelease --stacktrace
+        run: |
+          set -o pipefail
+          gradle assembleRelease 2>&1 | tee build.log
+
+      - name: Share build log on failure
+        if: failure()
+        run: |
+          grep -E "^e: |^w: .*Unresolved|What went wrong|error:|Exception" -A3 build.log | head -400 > errors.log || true
+          tail -150 build.log >> errors.log
+          git config user.name "ox-ci"; git config user.email "ci@users.noreply.github.com"
+          git checkout --orphan ci-logs
+          git rm -rq --cached . || true
+          git add -f errors.log
+          git commit -qm "build ${{ github.run_number }} log"
+          git push -f origin ci-logs
 
       - name: Rename APK
         run: cp app/build/outputs/apk/release/app-release.apk OX-v1.0.${{ github.run_number }}.apk
