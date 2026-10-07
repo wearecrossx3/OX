@@ -64,7 +64,8 @@ import com.frontpagestudios.ox.ui.components.AnimatedNumber
 import com.frontpagestudios.ox.ui.components.CircleButton
 import com.frontpagestudios.ox.ui.components.ModeSelector
 import com.frontpagestudios.ox.ui.components.OxMap
-import com.frontpagestudios.ox.ui.components.OxMark
+import com.frontpagestudios.ox.ui.components.OxWordmark
+import androidx.compose.ui.unit.sp
 import com.frontpagestudios.ox.ui.components.PulseDot
 import com.frontpagestudios.ox.ui.components.SectionLabel
 import com.frontpagestudios.ox.ui.theme.Graphite
@@ -236,7 +237,9 @@ fun LiveScreen(onClose: () -> Unit, onSaved: (String) -> Unit) {
                 contentAlignment = Alignment.Center,
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    OxMark(Modifier.width(180.dp).height(70.dp))
+                    OxWordmark(96.sp, Lime)
+                    Spacer(Modifier.height(6.dp))
+                    PulseDot()
                     Spacer(Modifier.height(18.dp))
                     Text("Saving your trip…", style = MaterialTheme.typography.headlineSmall, color = Snow)
                 }

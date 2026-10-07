@@ -3,21 +3,8 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- O : origin ring -->
-    <path
-        android:fillColor="#00000000"
-        android:strokeColor="#D2F53C"
-        android:strokeWidth="5.5"
-        android:pathData="M40,54m-11,0a11,11 0,1 1,22 0a11,11 0,1 1,-22 0" />
-    <!-- route dots -->
+    <!-- "OX" in Space Grotesk Bold -->
     <path
         android:fillColor="#D2F53C"
-        android:pathData="M54.5,54m-1.6,0a1.6,1.6 0,1 1,3.2 0a1.6,1.6 0,1 1,-3.2 0" />
-    <!-- X : destination -->
-    <path
-        android:fillColor="#00000000"
-        android:strokeColor="#D2F53C"
-        android:strokeWidth="5.5"
-        android:strokeLineCap="round"
-        android:pathData="M62,45 L80,63 M80,45 L62,63" />
+        android:pathData="M39.46 70.74Q33.39 70.74 29.8 67.41Q26.22 64.07 26.22 57.86V50.14Q26.22 43.93 29.8 40.59Q33.39 37.26 39.46 37.26Q45.54 37.26 49.12 40.59Q52.71 43.93 52.71 50.14V57.86Q52.71 64.07 49.12 67.41Q45.54 70.74 39.46 70.74ZM39.46 65.32Q42.87 65.32 44.75 63.34Q46.64 61.36 46.64 58.05V49.95Q46.64 46.64 44.75 44.66Q42.87 42.68 39.46 42.68Q36.11 42.68 34.2 44.66Q32.29 46.64 32.29 49.95V58.05Q32.29 61.36 34.2 63.34Q36.11 65.32 39.46 65.32ZM54.18 70.1 63.61 53.86 54.28 37.9H61.18L67.57 49.54H68.4L74.79 37.9H81.69L72.35 53.86L81.78 70.1H74.88L68.4 58.19H67.57L61.08 70.1Z" />
 </vector>

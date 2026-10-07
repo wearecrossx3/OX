@@ -69,6 +69,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -78,7 +83,8 @@ import com.frontpagestudios.ox.tracking.AutoDetect
 import com.frontpagestudios.ox.ui.components.Chip
 import com.frontpagestudios.ox.ui.components.EmptyRouteArt
 import com.frontpagestudios.ox.ui.components.ModeSelector
-import com.frontpagestudios.ox.ui.components.OxMark
+import com.frontpagestudios.ox.ui.components.LimePill
+import com.frontpagestudios.ox.ui.components.OxWordmark
 import com.frontpagestudios.ox.ui.components.Reveal
 import com.frontpagestudios.ox.ui.components.SectionLabel
 import com.frontpagestudios.ox.ui.components.drawPartialPath
@@ -105,13 +111,13 @@ fun OnboardingScreen(onDone: () -> Unit) {
     Box(Modifier.fillMaxSize().background(bg)) {
         HorizontalPager(pager, Modifier.fillMaxSize(), userScrollEnabled = true) { page ->
             when (page) {
-                0 -> IntroPage()
+                0 -> IntroPage(onNext = { scope.launch { pager.animateScrollToPage(1) } })
                 1 -> AutoPage()
                 2 -> WalkPage()
                 else -> SetupPage(onDone)
             }
         }
-        if (pager.currentPage < 3) {
+        if (pager.currentPage in 1..2) {
             Row(
                 Modifier.align(Alignment.BottomCenter).fillMaxWidth().navigationBarsPadding()
                     .padding(horizontal = 24.dp, vertical = 20.dp),
@@ -153,22 +159,63 @@ private fun PageText(title: String, body: String, color: Color, modifier: Modifi
 }
 
 @Composable
-private fun IntroPage() {
-    Column(Modifier.fillMaxSize().statusBarsPadding().padding(24.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("OX", style = MaterialTheme.typography.headlineMedium, color = Lime)
-            Spacer(Modifier.width(10.dp))
-            Text("origin  ×  destination", style = MaterialTheme.typography.labelMedium, color = Snow.copy(alpha = 0.5f))
-        }
-        Spacer(Modifier.weight(0.6f))
-        Reveal(0) { OxMark(Modifier.fillMaxWidth().height(130.dp)) }
-        Spacer(Modifier.weight(0.5f))
-        PageText(
-            "Every route.\nMeasured.",
-            "OX records your daily trips — office, gym, anywhere — and shows how long they really take.",
-            Snow,
+private fun IntroPage(onNext: () -> Unit) {
+    val t = rememberInfiniteTransition(label = "intro")
+    val p by t.animateFloat(
+        0f, 1f, infiniteRepeatable(tween(2400, easing = FastOutSlowInEasing), RepeatMode.Restart), label = "p",
+    )
+    Column(Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding().padding(horizontal = 24.dp)) {
+        Spacer(Modifier.height(28.dp))
+        Text(
+            "ORIGIN  ×  DESTINATION", style = MaterialTheme.typography.labelSmall.copy(letterSpacing = 3.sp),
+            color = Snow.copy(alpha = 0.45f),
         )
-        Spacer(Modifier.height(130.dp))
+        Spacer(Modifier.weight(1f))
+        Reveal(0) {
+            OxWordmark(size = 200.sp, color = Lime, modifier = Modifier.padding(start = 0.dp))
+        }
+        Spacer(Modifier.height(10.dp))
+        Canvas(Modifier.fillMaxWidth().height(56.dp)) {
+            val w = size.width; val h = size.height
+            val sw = 4.dp.toPx()
+            val r = 9.dp.toPx()
+            val o = Offset(r + sw, h * 0.66f)
+            drawCircle(Lime, r, o, style = Stroke(sw))
+            val route = Path().apply {
+                moveTo(o.x + r + sw, o.y)
+                cubicTo(w * 0.28f, o.y, w * 0.32f, h * 0.2f, w * 0.5f, h * 0.22f)
+                cubicTo(w * 0.68f, h * 0.24f, w * 0.74f, h * 0.75f, w - 34.dp.toPx(), h * 0.5f)
+            }
+            val pm = androidx.compose.ui.graphics.PathMeasure(); pm.setPath(route, false)
+            val seg = Path(); pm.getSegment(0f, pm.length * p, seg, true)
+            drawPath(
+                seg, Lime,
+                style = Stroke(sw, cap = StrokeCap.Round, pathEffect = PathEffect.dashPathEffect(floatArrayOf(1f, 10.dp.toPx()))),
+            )
+            val a = if (p > 0.98f) 1f else 0.3f
+            val c = Offset(w - 16.dp.toPx(), h * 0.5f); val k = 8.dp.toPx()
+            drawLine(Lime.copy(alpha = a), Offset(c.x - k, c.y - k), Offset(c.x + k, c.y + k), sw, StrokeCap.Round)
+            drawLine(Lime.copy(alpha = a), Offset(c.x + k, c.y - k), Offset(c.x - k, c.y + k), sw, StrokeCap.Round)
+        }
+        Spacer(Modifier.height(28.dp))
+        Reveal(150) {
+            Text("Every route.\nMeasured.", style = MaterialTheme.typography.displayMedium.copy(fontWeight = FontWeight.Medium, fontSize = 40.sp, lineHeight = 42.sp), color = Snow)
+        }
+        Spacer(Modifier.height(12.dp))
+        Reveal(260) {
+            Text(
+                "Your daily trips, timed and drawn on the map — automatically.",
+                style = MaterialTheme.typography.bodyLarge, color = Snow.copy(alpha = 0.6f),
+            )
+        }
+        Spacer(Modifier.weight(1f))
+        LimePill("Get started", null, icon = Icons.AutoMirrored.Rounded.ArrowForward, sound = Sfx.S.SWOOSH, onClick = onNext)
+        Spacer(Modifier.height(14.dp))
+        Text(
+            "by Frontpage Studios", style = MaterialTheme.typography.bodySmall, color = Snow.copy(alpha = 0.4f),
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+        )
+        Spacer(Modifier.height(18.dp))
     }
 }
 

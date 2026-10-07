@@ -60,7 +60,8 @@ import com.frontpagestudios.ox.data.Prefs
 import com.frontpagestudios.ox.data.TripMode
 import com.frontpagestudios.ox.tracking.AutoDetect
 import com.frontpagestudios.ox.ui.components.ModeSelector
-import com.frontpagestudios.ox.ui.components.OxMark
+import com.frontpagestudios.ox.ui.components.OxWordmark
+import androidx.compose.ui.unit.sp
 import com.frontpagestudios.ox.ui.components.SectionLabel
 import com.frontpagestudios.ox.ui.components.pressable
 import com.frontpagestudios.ox.ui.theme.Ink
@@ -172,7 +173,7 @@ fun SettingsTab() {
         Column(
             Modifier.fillMaxWidth().clip(RoundedCornerShape(36.dp)).background(Ink).padding(24.dp)
         ) {
-            OxMark(Modifier.width(150.dp).height(56.dp))
+            OxWordmark(72.sp, Lime)
             Spacer(Modifier.height(16.dp))
             Text("OX · origin to destination", style = MaterialTheme.typography.titleMedium, color = Snow)
             Text("Version ${BuildConfig.VERSION_NAME}", style = MaterialTheme.typography.bodySmall, color = Snow.copy(alpha = 0.5f))

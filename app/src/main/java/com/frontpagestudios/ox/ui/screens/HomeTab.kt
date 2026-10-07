@@ -41,6 +41,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.frontpagestudios.ox.data.Prefs
 import com.frontpagestudios.ox.data.TripMode
@@ -92,7 +93,7 @@ fun HomeTab(nav: NavHostController, openTab: (Int) -> Unit) {
             Box(
                 Modifier.size(46.dp).clip(CircleShape).background(Ink),
                 contentAlignment = Alignment.Center,
-            ) { Text("OX", style = MaterialTheme.typography.titleSmall, color = Lime) }
+            ) { com.frontpagestudios.ox.ui.components.OxWordmark(17.sp, Lime) }
             Spacer(Modifier.weight(1f))
             Chip(Format.fullDate(System.currentTimeMillis()), bg = Snow)
             Spacer(Modifier.width(8.dp))

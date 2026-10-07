@@ -39,6 +39,10 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.font.FontWeight
+import com.frontpagestudios.ox.ui.theme.Grotesk
 import com.frontpagestudios.ox.data.TripPoint
 import com.frontpagestudios.ox.ui.theme.Ink
 import com.frontpagestudios.ox.ui.theme.Lime
@@ -238,4 +242,21 @@ fun EmptyRouteArt(modifier: Modifier = Modifier, caption: String) {
             modifier = Modifier.align(Alignment.BottomStart).padding(20.dp),
         )
     }
+}
+
+/** The OX logo: the word itself, Space Grotesk Bold, tight. */
+@Composable
+fun OxWordmark(size: TextUnit, color: Color, modifier: Modifier = Modifier) {
+    Text(
+        "OX",
+        modifier = modifier,
+        color = color,
+        style = androidx.compose.ui.text.TextStyle(
+            fontFamily = Grotesk,
+            fontWeight = FontWeight.Bold,
+            fontSize = size,
+            lineHeight = size * 0.86f,
+            letterSpacing = size * -0.05f,
+        ),
+    )
 }
