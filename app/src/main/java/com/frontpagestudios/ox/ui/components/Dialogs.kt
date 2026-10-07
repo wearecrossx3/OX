@@ -46,6 +46,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import com.frontpagestudios.ox.data.PlaceKind
 import com.frontpagestudios.ox.ui.theme.Ink
+import com.frontpagestudios.ox.ui.theme.Txt
 import com.frontpagestudios.ox.ui.theme.Lime
 import com.frontpagestudios.ox.ui.theme.Mist
 import com.frontpagestudios.ox.ui.theme.Muted
@@ -66,7 +67,7 @@ private fun Field(value: String, onChange: (String) -> Unit, hint: String) {
         if (value.isEmpty()) Text(hint, style = MaterialTheme.typography.titleMedium, color = Muted)
         BasicTextField(
             value = value, onValueChange = { onChange(it.take(28)) }, singleLine = true,
-            textStyle = MaterialTheme.typography.titleMedium.copy(color = Ink), cursorBrush = SolidColor(Ink),
+            textStyle = MaterialTheme.typography.titleMedium.copy(color = Txt), cursorBrush = SolidColor(Ink),
             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
             modifier = Modifier.fillMaxWidth(),
         )
@@ -102,9 +103,9 @@ fun SavePlaceDialog(
                             }.clip(RoundedCornerShape(50)).background(bg).padding(horizontal = 14.dp, vertical = 10.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Icon(k.icon(), null, tint = if (on) Lime else Ink, modifier = Modifier.size(16.dp))
+                            Icon(k.icon(), null, tint = if (on) Lime else Txt, modifier = Modifier.size(16.dp))
                             Spacer(Modifier.width(6.dp))
-                            Text(k.label, style = MaterialTheme.typography.labelLarge, color = if (on) Lime else Ink)
+                            Text(k.label, style = MaterialTheme.typography.labelLarge, color = if (on) Lime else Txt)
                         }
                     }
                 }
@@ -119,7 +120,7 @@ fun SavePlaceDialog(
             TextButton(onClick = {
                 Sfx.play(Sfx.S.SUCCESS)
                 onSave(name.ifBlank { kind.label }, kind)
-            }) { Text("Save place", color = Ink, style = MaterialTheme.typography.labelLarge) }
+            }) { Text("Save place", color = Txt, style = MaterialTheme.typography.labelLarge) }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) { Text("Cancel", color = Muted, style = MaterialTheme.typography.labelLarge) }
@@ -147,7 +148,7 @@ fun RenameTripDialog(from: String, to: String, onDismiss: () -> Unit, onSave: (S
         },
         confirmButton = {
             TextButton(onClick = { onSave(a.trim().ifEmpty { from }, b.trim().ifEmpty { to }) }) {
-                Text("Save", color = Ink, style = MaterialTheme.typography.labelLarge)
+                Text("Save", color = Txt, style = MaterialTheme.typography.labelLarge)
             }
         },
         dismissButton = {
@@ -188,7 +189,7 @@ private fun ActionRow(icon: ImageVector, title: String, body: String, onClick: (
         }
         Spacer(Modifier.width(12.dp))
         Column(Modifier.weight(1f)) {
-            Text(title, style = MaterialTheme.typography.titleSmall, color = Ink)
+            Text(title, style = MaterialTheme.typography.titleSmall, color = Txt)
             Text(body, style = MaterialTheme.typography.bodySmall, color = Muted)
         }
     }

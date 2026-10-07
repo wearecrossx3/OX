@@ -53,6 +53,7 @@ import com.frontpagestudios.ox.ui.components.RouteShape
 import com.frontpagestudios.ox.ui.components.SectionLabel
 import com.frontpagestudios.ox.ui.theme.Graphite
 import com.frontpagestudios.ox.ui.theme.Ink
+import com.frontpagestudios.ox.ui.theme.Txt
 import com.frontpagestudios.ox.ui.theme.Lime
 import com.frontpagestudios.ox.ui.theme.Mist
 import com.frontpagestudios.ox.ui.theme.Muted
@@ -114,7 +115,7 @@ fun RecapScreen(onBack: () -> Unit) {
             }
         }
         Spacer(Modifier.height(18.dp))
-        Text("Monthly\nrecap", style = MaterialTheme.typography.displayLarge, color = Ink)
+        Text("Monthly\nrecap", style = MaterialTheme.typography.displayLarge, color = Txt)
         Spacer(Modifier.height(16.dp))
 
         // the shareable card

@@ -61,6 +61,8 @@ import com.frontpagestudios.ox.ui.components.icon
 import com.frontpagestudios.ox.ui.components.pressable
 import com.frontpagestudios.ox.ui.startTrip
 import com.frontpagestudios.ox.ui.theme.Ink
+import com.frontpagestudios.ox.ui.theme.Card
+import com.frontpagestudios.ox.ui.theme.Txt
 import com.frontpagestudios.ox.ui.theme.Lime
 import com.frontpagestudios.ox.ui.theme.Muted
 import com.frontpagestudios.ox.ui.theme.Snow
@@ -95,7 +97,7 @@ private fun HomeTabBody(nav: NavHostController, openTab: (Int) -> Unit) {
                 contentAlignment = Alignment.Center,
             ) { com.frontpagestudios.ox.ui.components.OxLogo(10.dp, Lime) }
             Spacer(Modifier.weight(1f))
-            Chip(Format.fullDate(System.currentTimeMillis()), bg = Snow)
+            Chip(Format.fullDate(System.currentTimeMillis()), bg = Card)
             Spacer(Modifier.width(8.dp))
             Box(
                 Modifier.pressable { openTab(4) }.size(46.dp).clip(CircleShape).background(Lime),
@@ -103,7 +105,7 @@ private fun HomeTabBody(nav: NavHostController, openTab: (Int) -> Unit) {
             ) {
                 Text(
                     (name.trim().firstOrNull()?.uppercase() ?: "☺"),
-                    style = MaterialTheme.typography.titleMedium, color = Ink,
+                    style = MaterialTheme.typography.titleMedium, color = Txt,
                 )
             }
         }
@@ -111,7 +113,7 @@ private fun HomeTabBody(nav: NavHostController, openTab: (Int) -> Unit) {
         Reveal(0) {
             Text(
                 Format.greeting() + "\n" + (name.trim().ifEmpty { "there" }),
-                style = MaterialTheme.typography.displayLarge, color = Ink,
+                style = MaterialTheme.typography.displayLarge, color = Txt,
             )
         }
         Spacer(Modifier.height(10.dp))
@@ -167,7 +169,7 @@ private fun HomeTabBody(nav: NavHostController, openTab: (Int) -> Unit) {
                     )
                     Row(Modifier.align(Alignment.TopStart).padding(16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Chip("Last trip", bg = Lime)
-                        Chip(Format.day(last.start), bg = Snow)
+                        Chip(Format.day(last.start), bg = Card)
                     }
                     Row(
                         Modifier.align(Alignment.BottomStart).fillMaxWidth().padding(20.dp),
@@ -241,17 +243,17 @@ private fun HomeTabBody(nav: NavHostController, openTab: (Int) -> Unit) {
                     )
                 }
                 Row(
-                    Modifier.pressable { openTab(4) }.fillMaxWidth().clip(RoundedCornerShape(32.dp)).background(Snow)
+                    Modifier.pressable { openTab(4) }.fillMaxWidth().clip(RoundedCornerShape(32.dp)).background(Card)
                         .padding(18.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Icon(Icons.Rounded.AutoAwesome, null, tint = Ink)
+                    Icon(Icons.Rounded.AutoAwesome, null, tint = Txt)
                     Spacer(Modifier.width(12.dp))
                     Column(Modifier.weight(1f)) {
                         val ready = autoOn && Perms.canAuto(ctx)
                         Text(
                             if (ready) "Auto-detect is on" else "Auto-detect is off",
-                            style = MaterialTheme.typography.titleMedium, color = Ink,
+                            style = MaterialTheme.typography.titleMedium, color = Txt,
                         )
                         Text(
                             if (ready) "Trips start when you ride or drive" else "Tap to turn it on in settings",

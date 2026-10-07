@@ -79,6 +79,8 @@ import androidx.compose.ui.unit.sp
 import com.frontpagestudios.ox.ui.components.SectionLabel
 import com.frontpagestudios.ox.ui.components.pressable
 import com.frontpagestudios.ox.ui.theme.Ink
+import com.frontpagestudios.ox.ui.theme.Card
+import com.frontpagestudios.ox.ui.theme.Txt
 import com.frontpagestudios.ox.ui.theme.Lime
 import com.frontpagestudios.ox.ui.theme.Mist
 import com.frontpagestudios.ox.ui.theme.Muted
@@ -166,16 +168,16 @@ fun SettingsTab() {
             .padding(horizontal = 20.dp)
     ) {
         Spacer(Modifier.height(24.dp))
-        Text("Your\nsettings", style = MaterialTheme.typography.displayLarge, color = Ink)
+        Text("Your\nsettings", style = MaterialTheme.typography.displayLarge, color = Txt)
         Spacer(Modifier.height(24.dp))
 
         SectionLabel("Name")
         Spacer(Modifier.height(8.dp))
-        Box(Modifier.fillMaxWidth().clip(RoundedCornerShape(26.dp)).background(Snow).padding(horizontal = 22.dp, vertical = 18.dp)) {
+        Box(Modifier.fillMaxWidth().clip(RoundedCornerShape(26.dp)).background(Card).padding(horizontal = 22.dp, vertical = 18.dp)) {
             if (name.isEmpty()) Text("Your name", style = MaterialTheme.typography.titleLarge, color = Muted)
             BasicTextField(
                 value = name, onValueChange = { Prefs.setName(it.take(20)) }, singleLine = true,
-                textStyle = MaterialTheme.typography.titleLarge.copy(color = Ink), cursorBrush = SolidColor(Ink),
+                textStyle = MaterialTheme.typography.titleLarge.copy(color = Txt), cursorBrush = SolidColor(Ink),
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -184,7 +186,19 @@ fun SettingsTab() {
         Spacer(Modifier.height(22.dp))
         SectionLabel("App color")
         Spacer(Modifier.height(8.dp))
-        Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(32.dp)).background(Snow).padding(16.dp)) {
+        Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(32.dp)).background(Card).padding(16.dp)) {
+            val mode by Prefs.themeMode.collectAsState()
+            Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(50)).background(Mist).padding(4.dp)) {
+                listOf("Auto", "Light", "Dark").forEachIndexed { i, label ->
+                    val on = mode == i
+                    Box(
+                        Modifier.weight(1f).pressable { Prefs.setThemeMode(i) }.clip(RoundedCornerShape(50))
+                            .background(if (on) Ink else Mist).padding(vertical = 12.dp),
+                        contentAlignment = Alignment.Center,
+                    ) { Text(label, style = MaterialTheme.typography.labelLarge, color = if (on) Lime else Txt) }
+                }
+            }
+            Spacer(Modifier.height(14.dp))
             androidx.compose.foundation.layout.FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -206,7 +220,7 @@ fun SettingsTab() {
             Spacer(Modifier.height(10.dp))
             Text(
                 com.frontpagestudios.ox.ui.theme.OxAccent.themes.firstOrNull { it.second == accent }?.first ?: "Custom",
-                style = MaterialTheme.typography.titleMedium, color = Ink,
+                style = MaterialTheme.typography.titleMedium, color = Txt,
             )
             Text("Changes the whole app, widget and notifications.", style = MaterialTheme.typography.bodySmall, color = Muted)
         }
@@ -214,7 +228,7 @@ fun SettingsTab() {
         Spacer(Modifier.height(22.dp))
         SectionLabel("Your places")
         Spacer(Modifier.height(8.dp))
-        Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(32.dp)).background(Snow).padding(8.dp)) {
+        Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(32.dp)).background(Card).padding(8.dp)) {
             places.forEach { p ->
                 Row(Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
                     Box(Modifier.size(42.dp).clip(CircleShape).background(Ink), contentAlignment = Alignment.Center) {
@@ -222,13 +236,13 @@ fun SettingsTab() {
                     }
                     Spacer(Modifier.width(12.dp))
                     Column(Modifier.weight(1f)) {
-                        Text(p.name, style = MaterialTheme.typography.titleMedium, color = Ink)
+                        Text(p.name, style = MaterialTheme.typography.titleMedium, color = Txt)
                         Text(p.kind.label, style = MaterialTheme.typography.bodySmall, color = Muted)
                     }
                     Box(
                         Modifier.pressable { Places.remove(p.id) }.size(40.dp).clip(CircleShape).background(Mist),
                         contentAlignment = Alignment.Center,
-                    ) { Icon(Icons.Rounded.Close, "Remove ${p.name}", tint = Ink, modifier = Modifier.size(18.dp)) }
+                    ) { Icon(Icons.Rounded.Close, "Remove ${p.name}", tint = Txt, modifier = Modifier.size(18.dp)) }
                 }
             }
             Row(
@@ -240,7 +254,7 @@ fun SettingsTab() {
                 }
                 Spacer(Modifier.width(12.dp))
                 Column(Modifier.weight(1f)) {
-                    Text("Add where I am now", style = MaterialTheme.typography.titleMedium, color = Ink)
+                    Text("Add where I am now", style = MaterialTheme.typography.titleMedium, color = Txt)
                     Text("Stand at Home or Office and tap — or tap O / X on any trip", style = MaterialTheme.typography.bodySmall, color = Muted)
                 }
             }
@@ -250,7 +264,7 @@ fun SettingsTab() {
         SectionLabel("Tracking")
         Spacer(Modifier.height(8.dp))
         Column(
-            Modifier.fillMaxWidth().clip(RoundedCornerShape(32.dp)).background(Snow).padding(8.dp)
+            Modifier.fillMaxWidth().clip(RoundedCornerShape(32.dp)).background(Card).padding(8.dp)
         ) {
             ToggleRow(
                 Icons.Rounded.AutoAwesome, "Auto-detect trips",
@@ -266,7 +280,7 @@ fun SettingsTab() {
             }
             Spacer(Modifier.height(4.dp))
             Column(Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
-                Text("Your vehicle", style = MaterialTheme.typography.titleMedium, color = Ink)
+                Text("Your vehicle", style = MaterialTheme.typography.titleMedium, color = Txt)
                 Text("Used for auto-detected trips", style = MaterialTheme.typography.bodySmall, color = Muted)
                 Spacer(Modifier.height(10.dp))
                 ModeSelector(vehicle, { Prefs.setVehicle(it) }, modes = listOf(TripMode.BIKE, TripMode.CAR))
@@ -293,7 +307,7 @@ fun SettingsTab() {
         Spacer(Modifier.height(22.dp))
         SectionLabel("Leave-time reminder")
         Spacer(Modifier.height(8.dp))
-        Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(32.dp)).background(Snow).padding(8.dp)) {
+        Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(32.dp)).background(Card).padding(8.dp)) {
             val plan = remember(reminderOn, reminderMin, trips) { com.frontpagestudios.ox.tracking.Reminder.plan(trips) }
             ToggleRow(
                 Icons.Rounded.NotificationsActive, "Remind me when to leave",
@@ -307,7 +321,7 @@ fun SettingsTab() {
             if (reminderOn && plan != null) {
                 Row(Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {
-                        Text(com.frontpagestudios.ox.tracking.Reminder.label(plan.minute), style = MaterialTheme.typography.headlineMedium, color = Ink)
+                        Text(com.frontpagestudios.ox.tracking.Reminder.label(plan.minute), style = MaterialTheme.typography.headlineMedium, color = Txt)
                         Text(if (reminderMin < 0) "Auto · 10 min before you usually leave" else "Set by you", style = MaterialTheme.typography.bodySmall, color = Muted)
                     }
                     Box(
@@ -316,7 +330,7 @@ fun SettingsTab() {
                             com.frontpagestudios.ox.tracking.Reminder.schedule(ctx, trips)
                         }.size(44.dp).clip(CircleShape).background(Mist),
                         contentAlignment = Alignment.Center,
-                    ) { Text("−5", style = MaterialTheme.typography.labelLarge, color = Ink) }
+                    ) { Text("−5", style = MaterialTheme.typography.labelLarge, color = Txt) }
                     Spacer(Modifier.width(8.dp))
                     Box(
                         Modifier.pressable {
@@ -324,7 +338,7 @@ fun SettingsTab() {
                             com.frontpagestudios.ox.tracking.Reminder.schedule(ctx, trips)
                         }.size(44.dp).clip(CircleShape).background(Mist),
                         contentAlignment = Alignment.Center,
-                    ) { Text("+5", style = MaterialTheme.typography.labelLarge, color = Ink) }
+                    ) { Text("+5", style = MaterialTheme.typography.labelLarge, color = Txt) }
                     if (reminderMin >= 0) {
                         Spacer(Modifier.width(8.dp))
                         Box(
@@ -344,7 +358,7 @@ fun SettingsTab() {
         SectionLabel("Fuel cost (optional)")
         Spacer(Modifier.height(8.dp))
         Column(
-            Modifier.fillMaxWidth().clip(RoundedCornerShape(32.dp)).background(Snow).padding(18.dp),
+            Modifier.fillMaxWidth().clip(RoundedCornerShape(32.dp)).background(Card).padding(18.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Text(
@@ -359,7 +373,7 @@ fun SettingsTab() {
         Spacer(Modifier.height(22.dp))
         SectionLabel("Feel")
         Spacer(Modifier.height(8.dp))
-        Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(32.dp)).background(Snow).padding(8.dp)) {
+        Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(32.dp)).background(Card).padding(8.dp)) {
             ToggleRow(Icons.AutoMirrored.Rounded.VolumeUp, "Sound effects", "Taps, trip start/finish, every-km ping", sound) { Prefs.setSound(it) }
             ToggleRow(Icons.Rounded.Vibration, "Haptics", "Subtle vibration on taps", haptics) { Prefs.setHaptics(it) }
         }
@@ -367,7 +381,7 @@ fun SettingsTab() {
         Spacer(Modifier.height(22.dp))
         SectionLabel("Your data")
         Spacer(Modifier.height(8.dp))
-        Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(32.dp)).background(Snow).padding(8.dp)) {
+        Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(32.dp)).background(Card).padding(8.dp)) {
             DataRow(Icons.Rounded.TableChart, "Export to Excel (CSV)", "Every trip with time, km, stops, fuel") {
                 csvLauncher.launch("OX-trips.csv")
             }
@@ -410,11 +424,11 @@ private fun ToggleRow(icon: ImageVector, title: String, body: String, on: Boolea
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(Modifier.size(42.dp).clip(CircleShape).background(Mist), contentAlignment = Alignment.Center) {
-            Icon(icon, null, tint = Ink, modifier = Modifier.size(20.dp))
+            Icon(icon, null, tint = Txt, modifier = Modifier.size(20.dp))
         }
         Spacer(Modifier.width(12.dp))
         Column(Modifier.weight(1f)) {
-            Text(title, style = MaterialTheme.typography.titleMedium, color = Ink)
+            Text(title, style = MaterialTheme.typography.titleMedium, color = Txt)
             Text(body, style = MaterialTheme.typography.bodySmall, color = Muted)
         }
         Spacer(Modifier.width(10.dp))
@@ -447,7 +461,7 @@ private fun NumberRow(label: String, unit: String, value: Float, onChange: (Floa
     var text by remember { mutableStateOf(if (value > 0f) (if (value % 1f == 0f) value.toInt().toString() else value.toString()) else "") }
     Row(verticalAlignment = Alignment.CenterVertically) {
         Column(Modifier.weight(1f)) {
-            Text(label, style = MaterialTheme.typography.titleMedium, color = Ink)
+            Text(label, style = MaterialTheme.typography.titleMedium, color = Txt)
             Text(unit, style = MaterialTheme.typography.bodySmall, color = Muted)
         }
         Box(Modifier.width(110.dp).clip(RoundedCornerShape(18.dp)).background(Mist).padding(horizontal = 16.dp, vertical = 12.dp)) {
@@ -460,7 +474,7 @@ private fun NumberRow(label: String, unit: String, value: Float, onChange: (Floa
                     onChange(clean.toFloatOrNull() ?: 0f)
                 },
                 singleLine = true,
-                textStyle = MaterialTheme.typography.titleMedium.copy(color = Ink),
+                textStyle = MaterialTheme.typography.titleMedium.copy(color = Txt),
                 cursorBrush = SolidColor(Ink),
                 keyboardOptions = KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Decimal),
                 modifier = Modifier.fillMaxWidth(),
@@ -476,11 +490,11 @@ private fun DataRow(icon: ImageVector, title: String, body: String, onClick: () 
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(Modifier.size(42.dp).clip(CircleShape).background(Mist), contentAlignment = Alignment.Center) {
-            Icon(icon, null, tint = Ink, modifier = Modifier.size(20.dp))
+            Icon(icon, null, tint = Txt, modifier = Modifier.size(20.dp))
         }
         Spacer(Modifier.width(12.dp))
         Column(Modifier.weight(1f)) {
-            Text(title, style = MaterialTheme.typography.titleMedium, color = Ink)
+            Text(title, style = MaterialTheme.typography.titleMedium, color = Txt)
             Text(body, style = MaterialTheme.typography.bodySmall, color = Muted)
         }
     }

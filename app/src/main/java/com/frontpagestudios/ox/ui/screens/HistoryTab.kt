@@ -49,6 +49,8 @@ import com.frontpagestudios.ox.ui.components.SectionLabel
 import com.frontpagestudios.ox.ui.components.icon
 import com.frontpagestudios.ox.ui.components.pressable
 import com.frontpagestudios.ox.ui.theme.Ink
+import com.frontpagestudios.ox.ui.theme.Card
+import com.frontpagestudios.ox.ui.theme.Txt
 import com.frontpagestudios.ox.ui.theme.Lime
 import com.frontpagestudios.ox.ui.theme.Mist
 import com.frontpagestudios.ox.ui.theme.Muted
@@ -78,7 +80,7 @@ private fun HistoryTabBody(nav: NavHostController) {
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         item {
-            Text("Your\ntrips", style = MaterialTheme.typography.displayLarge, color = Ink)
+            Text("Your\ntrips", style = MaterialTheme.typography.displayLarge, color = Txt)
             Spacer(Modifier.height(6.dp))
             Text(
                 "${trips.size} recorded · ${Format.distance(trips.sumOf { it.distance })} total",
@@ -90,12 +92,12 @@ private fun HistoryTabBody(nav: NavHostController) {
             LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(filters.size) { i ->
                     val on = i == filter
-                    val bg by animateColorAsState(if (on) Ink else Snow, tween(220), label = "f")
+                    val bg by animateColorAsState(if (on) Ink else Card, tween(220), label = "f")
                     Box(
                         Modifier.pressable { filter = i }.clip(RoundedCornerShape(50)).background(bg)
                             .padding(horizontal = 20.dp, vertical = 12.dp)
                     ) {
-                        Text(filters[i], style = MaterialTheme.typography.labelLarge, color = if (on) Lime else Ink)
+                        Text(filters[i], style = MaterialTheme.typography.labelLarge, color = if (on) Lime else Txt)
                     }
                 }
             }
@@ -111,7 +113,7 @@ private fun HistoryTabBody(nav: NavHostController) {
         grouped.forEach { (day, list) ->
             item(key = "h_$day") {
                 Row(Modifier.padding(top = 12.dp, bottom = 2.dp), verticalAlignment = Alignment.CenterVertically) {
-                    SectionLabel(day, color = Ink)
+                    SectionLabel(day, color = Txt)
                     Spacer(Modifier.width(8.dp))
                     SectionLabel("${list.size} · ${Format.duration(list.sumOf { it.durationMs })}")
                 }
@@ -127,7 +129,7 @@ private fun HistoryTabBody(nav: NavHostController) {
 fun TripRow(trip: Trip, modifier: Modifier = Modifier, onClick: () -> Unit) {
     Row(
         modifier.pressable(pressedScale = 0.97f, onClick = onClick)
-            .fillMaxWidth().clip(RoundedCornerShape(30.dp)).background(Snow).padding(10.dp),
+            .fillMaxWidth().clip(RoundedCornerShape(30.dp)).background(Card).padding(10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(Modifier.size(78.dp).clip(RoundedCornerShape(24.dp)).background(Ink)) {
@@ -136,7 +138,7 @@ fun TripRow(trip: Trip, modifier: Modifier = Modifier, onClick: () -> Unit) {
         Spacer(Modifier.width(14.dp))
         Column(Modifier.weight(1f)) {
             Text(
-                trip.title, style = MaterialTheme.typography.titleMedium, color = Ink,
+                trip.title, style = MaterialTheme.typography.titleMedium, color = Txt,
                 maxLines = 1, overflow = TextOverflow.Ellipsis,
             )
             Spacer(Modifier.height(3.dp))
@@ -149,7 +151,7 @@ fun TripRow(trip: Trip, modifier: Modifier = Modifier, onClick: () -> Unit) {
                 Box(
                     Modifier.size(26.dp).clip(CircleShape).background(Mist),
                     contentAlignment = Alignment.Center,
-                ) { Icon(trip.mode.icon(), null, tint = Ink, modifier = Modifier.size(15.dp)) }
+                ) { Icon(trip.mode.icon(), null, tint = Txt, modifier = Modifier.size(15.dp)) }
                 if (trip.auto) {
                     Spacer(Modifier.width(6.dp))
                     Box(
@@ -158,12 +160,12 @@ fun TripRow(trip: Trip, modifier: Modifier = Modifier, onClick: () -> Unit) {
                     ) { Icon(Icons.Rounded.AutoAwesome, null, tint = Ink, modifier = Modifier.size(14.dp)) }
                 }
                 Spacer(Modifier.width(8.dp))
-                Text(Format.distance(trip.distance), style = MaterialTheme.typography.labelMedium, color = Ink)
+                Text(Format.distance(trip.distance), style = MaterialTheme.typography.labelMedium, color = Txt)
             }
         }
         Column(horizontalAlignment = Alignment.End, modifier = Modifier.padding(end = 10.dp)) {
             val (v, u) = Format.durationParts(trip.durationMs)
-            Text(v, style = MaterialTheme.typography.headlineLarge, color = Ink)
+            Text(v, style = MaterialTheme.typography.headlineLarge, color = Txt)
             Text(u, style = MaterialTheme.typography.labelMedium, color = Muted)
         }
     }

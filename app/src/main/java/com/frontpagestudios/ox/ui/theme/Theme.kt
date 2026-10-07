@@ -4,6 +4,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.runtime.getValue
@@ -33,13 +34,25 @@ object OxAccent {
 }
 val Lime: Color get() = OxAccent.color
 val LimeSoft = Color(0xFFE8FA9A)
-val Ink = Color(0xFF0D0D0D)
-val Graphite = Color(0xFF1A1A1A)
+/** Light / dark switch. Every neutral token below reads it, so the whole app follows. */
+object OxMode {
+    var dark by androidx.compose.runtime.mutableStateOf(false)
+}
+private fun pick(light: Long, dark: Long) = Color(if (OxMode.dark) dark else light)
+
+/** Near-black: dark cards, and text/icons sitting on the accent color. */
+val Ink: Color get() = pick(0xFF0D0D0D, 0xFF202020)
+/** Text and icons on neutral surfaces. */
+val Txt: Color get() = pick(0xFF0D0D0D, 0xFFF2F2EE)
+/** Neutral card surface. */
+val Card: Color get() = pick(0xFFFFFFFF, 0xFF161616)
+val Graphite: Color get() = pick(0xFF1A1A1A, 0xFF2E2E2E)
 val Coal = Color(0xFF262626)
-val Paper = Color(0xFFF0F0EC)
+val Paper: Color get() = pick(0xFFF0F0EC, 0xFF080808)
+/** Always white — text on dark cards. */
 val Snow = Color(0xFFFFFFFF)
-val Mist = Color(0xFFE3E3DE)
-val Muted = Color(0xFF8C8C86)
+val Mist: Color get() = pick(0xFFE3E3DE, 0xFF2A2A2A)
+val Muted: Color get() = pick(0xFF8C8C86, 0xFF8E8E88)
 val Danger = Color(0xFFFF5A4E)
 val Amber = Color(0xFFFFB020)
 val LimeArgb: Int get() = OxAccent.color.toArgb()
@@ -93,5 +106,19 @@ private val scheme = lightColorScheme(
 
 @Composable
 fun OxTheme(content: @Composable () -> Unit) {
-    MaterialTheme(colorScheme = scheme, typography = OxType, content = content)
+    val mode by com.frontpagestudios.ox.data.Prefs.themeMode.collectAsState()
+    val system = androidx.compose.foundation.isSystemInDarkTheme()
+    val dark = when (mode) { 1 -> false; 2 -> true; else -> system }
+    OxMode.dark = dark
+    val view = androidx.compose.ui.platform.LocalView.current
+    androidx.compose.runtime.SideEffect {
+        val window = (view.context as? android.app.Activity)?.window
+        if (window != null) androidx.core.view.WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !dark
+    }
+    val cs = if (dark) androidx.compose.material3.darkColorScheme(
+        primary = Txt, onPrimary = Paper, secondary = Lime, onSecondary = Ink,
+        background = Paper, onBackground = Txt, surface = Card, onSurface = Txt,
+        surfaceVariant = Mist, onSurfaceVariant = Muted, error = Danger,
+    ) else scheme
+    MaterialTheme(colorScheme = cs, typography = OxType, content = content)
 }

@@ -70,6 +70,7 @@ import com.frontpagestudios.ox.ui.components.PulseDot
 import com.frontpagestudios.ox.ui.components.SectionLabel
 import com.frontpagestudios.ox.ui.theme.Graphite
 import com.frontpagestudios.ox.ui.theme.Ink
+import com.frontpagestudios.ox.ui.theme.Card
 import com.frontpagestudios.ox.ui.theme.Lime
 import com.frontpagestudios.ox.ui.theme.Snow
 import com.frontpagestudios.ox.util.Format
@@ -105,7 +106,7 @@ fun LiveScreen(onClose: () -> Unit, onSaved: (String) -> Unit) {
         val window = ctx.findActivity()?.window
         val ctl = window?.let { WindowCompat.getInsetsController(it, view) }
         ctl?.isAppearanceLightStatusBars = false
-        onDispose { ctl?.isAppearanceLightStatusBars = true }
+        onDispose { ctl?.isAppearanceLightStatusBars = !com.frontpagestudios.ox.ui.theme.OxMode.dark }
     }
     LaunchedEffect(Unit) { while (true) { now = System.currentTimeMillis(); delay(1000) } }
 
@@ -168,7 +169,7 @@ fun LiveScreen(onClose: () -> Unit, onSaved: (String) -> Unit) {
             Modifier.statusBarsPadding().padding(16.dp).fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            CircleButton(Icons.Rounded.KeyboardArrowDown, bg = Snow) { onClose() }
+            CircleButton(Icons.Rounded.KeyboardArrowDown, bg = Card) { onClose() }
             Spacer(Modifier.weight(1f))
             Row(
                 Modifier.clip(RoundedCornerShape(50)).background(Ink).padding(start = 6.dp, end = 16.dp, top = 6.dp, bottom = 6.dp),

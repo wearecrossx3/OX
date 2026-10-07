@@ -45,6 +45,8 @@ import com.frontpagestudios.ox.ui.components.SectionLabel
 import com.frontpagestudios.ox.ui.components.StatTile
 import com.frontpagestudios.ox.ui.theme.Amber
 import com.frontpagestudios.ox.ui.theme.Ink
+import com.frontpagestudios.ox.ui.theme.Card
+import com.frontpagestudios.ox.ui.theme.Txt
 import com.frontpagestudios.ox.ui.theme.Lime
 import com.frontpagestudios.ox.ui.theme.Muted
 import com.frontpagestudios.ox.ui.theme.Paper
@@ -86,7 +88,7 @@ fun HotspotsScreen(onBack: () -> Unit) {
         }
         Column(Modifier.padding(horizontal = 20.dp)) {
             Spacer(Modifier.height(22.dp))
-            Text("Where you\nwait the most", style = MaterialTheme.typography.displayMedium, color = Ink)
+            Text("Where you\nwait the most", style = MaterialTheme.typography.displayMedium, color = Txt)
             Spacer(Modifier.height(8.dp))
             Text(
                 "Every halt from all your rides and drives, grouped by spot. Numbers match the map.",
@@ -105,7 +107,7 @@ fun HotspotsScreen(onBack: () -> Unit) {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 spots.forEachIndexed { i, s ->
                     Row(
-                        Modifier.fillMaxWidth().clip(RoundedCornerShape(26.dp)).background(Snow).padding(14.dp),
+                        Modifier.fillMaxWidth().clip(RoundedCornerShape(26.dp)).background(Card).padding(14.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Box(Modifier.size(36.dp).clip(CircleShape).background(Amber), contentAlignment = Alignment.Center) {
@@ -113,13 +115,13 @@ fun HotspotsScreen(onBack: () -> Unit) {
                         }
                         Spacer(Modifier.width(12.dp))
                         Column(Modifier.weight(1f)) {
-                            Text(names[i] ?: "Spot ${i + 1}", style = MaterialTheme.typography.titleMedium, color = Ink)
+                            Text(names[i] ?: "Spot ${i + 1}", style = MaterialTheme.typography.titleMedium, color = Txt)
                             Text(
                                 "${s.hits} stops on ${s.tripCount} trips · avg ${Format.clock(s.avgMs)}",
                                 style = MaterialTheme.typography.bodySmall, color = Muted,
                             )
                         }
-                        Text(Format.duration(s.totalMs), style = MaterialTheme.typography.titleMedium, color = Ink)
+                        Text(Format.duration(s.totalMs), style = MaterialTheme.typography.titleMedium, color = Txt)
                     }
                 }
             }

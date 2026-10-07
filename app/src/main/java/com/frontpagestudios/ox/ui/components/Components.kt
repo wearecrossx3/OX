@@ -57,6 +57,8 @@ import com.frontpagestudios.ox.data.Prefs
 import com.frontpagestudios.ox.data.TripMode
 import com.frontpagestudios.ox.ui.theme.Graphite
 import com.frontpagestudios.ox.ui.theme.Ink
+import com.frontpagestudios.ox.ui.theme.Card
+import com.frontpagestudios.ox.ui.theme.Txt
 import com.frontpagestudios.ox.ui.theme.Lime
 import com.frontpagestudios.ox.ui.theme.Mist
 import com.frontpagestudios.ox.ui.theme.Muted
@@ -144,7 +146,7 @@ fun StatTile(
     onClick: (() -> Unit)? = null,
 ) {
     val bg = when { lime -> Lime; dark -> Ink; else -> Mist }
-    val fg = when { lime -> Ink; dark -> Snow; else -> Ink }
+    val fg = when { lime -> Ink; dark -> Snow; else -> Txt }
     val valueColor = if (dark && !lime) Lime else fg
     Column(
         modifier
@@ -186,7 +188,7 @@ fun ModeSelector(
             val bg by androidx.compose.animation.animateColorAsState(
                 when { on -> Lime; dark -> Graphite; else -> Mist }, tween(250), label = "modeBg",
             )
-            val fg = when { on -> Ink; dark -> Snow; else -> Ink }
+            val fg = when { on -> Ink; dark -> Snow; else -> Txt }
             Row(
                 Modifier
                     .weight(1f)
@@ -264,7 +266,7 @@ fun SectionLabel(text: String, modifier: Modifier = Modifier, color: Color = Mut
 }
 
 @Composable
-fun Chip(text: String, modifier: Modifier = Modifier, bg: Color = Snow, fg: Color = Ink, icon: ImageVector? = null) {
+fun Chip(text: String, modifier: Modifier = Modifier, bg: Color = Card, fg: Color = if (bg == Card || bg == Mist) Txt else Ink, icon: ImageVector? = null) {
     Row(
         modifier.clip(RoundedCornerShape(50)).background(bg).padding(horizontal = 14.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,

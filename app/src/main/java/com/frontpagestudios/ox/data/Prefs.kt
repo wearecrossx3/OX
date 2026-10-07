@@ -24,6 +24,9 @@ object Prefs {
     val bikeKmpl: StateFlow<Float> = _bikeKmpl
     private val _carKmpl = MutableStateFlow(15f)
     val carKmpl: StateFlow<Float> = _carKmpl
+    /** 0 = follow phone, 1 = light, 2 = dark */
+    private val _themeMode = MutableStateFlow(0)
+    val themeMode: StateFlow<Int> = _themeMode
     private val _accent = MutableStateFlow(0xFFD2F53C)
     val accent: StateFlow<Long> = _accent
     private val _reminder = MutableStateFlow(false)
@@ -47,6 +50,7 @@ object Prefs {
         _carKmpl.value = sp.getFloat("carKmpl", 15f)
         _fuelPrice.value = sp.getFloat("fuelPrice", 0f)
         _accent.value = sp.getLong("accent", 0xFFD2F53C)
+        _themeMode.value = sp.getInt("themeMode", 0)
         _reminder.value = sp.getBoolean("reminder", false)
         _reminderMinute.value = sp.getInt("reminderMinute", -1)
     }
@@ -58,6 +62,7 @@ object Prefs {
     fun setSound(v: Boolean) { _sound.value = v; sp.edit().putBoolean("sound", v).apply() }
     fun setBikeKmpl(v: Float) { _bikeKmpl.value = v; sp.edit().putFloat("bikeKmpl", v).apply() }
     fun setCarKmpl(v: Float) { _carKmpl.value = v; sp.edit().putFloat("carKmpl", v).apply() }
+    fun setThemeMode(v: Int) { _themeMode.value = v; sp.edit().putInt("themeMode", v).apply() }
     fun setAccent(v: Long) { _accent.value = v; sp.edit().putLong("accent", v).apply() }
     fun setReminder(v: Boolean) { _reminder.value = v; sp.edit().putBoolean("reminder", v).apply() }
     fun setReminderMinute(v: Int) { _reminderMinute.value = v; sp.edit().putInt("reminderMinute", v).apply() }

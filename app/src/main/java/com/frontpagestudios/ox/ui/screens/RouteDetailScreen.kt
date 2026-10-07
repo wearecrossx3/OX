@@ -56,6 +56,8 @@ import com.frontpagestudios.ox.ui.components.SectionLabel
 import com.frontpagestudios.ox.ui.components.StatTile
 import com.frontpagestudios.ox.ui.components.pressable
 import com.frontpagestudios.ox.ui.theme.Ink
+import com.frontpagestudios.ox.ui.theme.Card
+import com.frontpagestudios.ox.ui.theme.Txt
 import com.frontpagestudios.ox.ui.theme.Lime
 import com.frontpagestudios.ox.ui.theme.Muted
 import com.frontpagestudios.ox.ui.theme.Paper
@@ -114,11 +116,11 @@ private fun RouteDetail(g: RouteGroup, nav: NavHostController, onBack: () -> Uni
             Reveal(80) {
                 Column {
                     SectionLabel("Route")
-                    Text("${g.from} → ${g.to}", style = MaterialTheme.typography.headlineLarge, color = Ink)
+                    Text("${g.from} → ${g.to}", style = MaterialTheme.typography.headlineLarge, color = Txt)
                     Spacer(Modifier.height(8.dp))
                     Row(verticalAlignment = Alignment.Bottom) {
                         val (v, u) = Format.durationParts(g.avgMs)
-                        Text(v, style = MaterialTheme.typography.displayLarge.copy(fontSize = MaterialTheme.typography.displayLarge.fontSize * 1.3f), color = Ink)
+                        Text(v, style = MaterialTheme.typography.displayLarge.copy(fontSize = MaterialTheme.typography.displayLarge.fontSize * 1.3f), color = Txt)
                         Spacer(Modifier.width(8.dp))
                         Text("$u avg", style = MaterialTheme.typography.headlineSmall, color = Muted, modifier = Modifier.padding(bottom = 12.dp))
                         Spacer(Modifier.weight(1f))
@@ -187,16 +189,16 @@ private fun RouteDetail(g: RouteGroup, nav: NavHostController, onBack: () -> Uni
 
             if (slots.size >= 2 && bestSlot != null) {
                 Spacer(Modifier.height(10.dp))
-                Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(36.dp)).background(Snow).padding(22.dp)) {
+                Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(36.dp)).background(Card).padding(22.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        androidx.compose.material3.Icon(Icons.Rounded.Schedule, null, tint = Ink)
+                        androidx.compose.material3.Icon(Icons.Rounded.Schedule, null, tint = Txt)
                         Spacer(Modifier.width(8.dp))
-                        SectionLabel("Best time to leave", color = Ink)
+                        SectionLabel("Best time to leave", color = Txt)
                     }
                     Spacer(Modifier.height(8.dp))
                     Text(
                         "Leave around ${slotLabel(bestSlot.first)} — avg ${Format.duration(bestSlot.second)}",
-                        style = MaterialTheme.typography.headlineSmall, color = Ink,
+                        style = MaterialTheme.typography.headlineSmall, color = Txt,
                     )
                     Spacer(Modifier.height(16.dp))
                     val maxV = slots.maxOf { it.second }.toFloat()
@@ -210,7 +212,7 @@ private fun RouteDetail(g: RouteGroup, nav: NavHostController, onBack: () -> Uni
                                             .background(if (slot == bestSlot.first) Lime else Ink)
                                     )
                                 }
-                                Text(Format.duration(ms), style = MaterialTheme.typography.labelMedium, color = Ink, textAlign = TextAlign.End, modifier = Modifier.width(64.dp))
+                                Text(Format.duration(ms), style = MaterialTheme.typography.labelMedium, color = Txt, textAlign = TextAlign.End, modifier = Modifier.width(64.dp))
                             }
                         }
                     }

@@ -1,5 +1,6 @@
 package com.frontpagestudios.ox.ui.screens
 
+import com.frontpagestudios.ox.ui.theme.Card
 import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -47,6 +48,7 @@ import com.frontpagestudios.ox.ui.components.SectionLabel
 import com.frontpagestudios.ox.ui.components.Sparkline
 import com.frontpagestudios.ox.ui.components.pressable
 import com.frontpagestudios.ox.ui.theme.Ink
+import com.frontpagestudios.ox.ui.theme.Txt
 import com.frontpagestudios.ox.ui.theme.Lime
 import com.frontpagestudios.ox.ui.theme.Muted
 import com.frontpagestudios.ox.ui.theme.Snow
@@ -71,7 +73,7 @@ private fun RoutesBody(nav: NavHostController, openSettings: () -> Unit, noPlace
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         item {
-            Text("Your\nroutes", style = MaterialTheme.typography.displayLarge, color = Ink)
+            Text("Your\nroutes", style = MaterialTheme.typography.displayLarge, color = Txt)
             Spacer(Modifier.height(6.dp))
             Text(
                 "Same start, same finish — grouped so you can see if you are getting faster.",
@@ -91,7 +93,7 @@ private fun RoutesBody(nav: NavHostController, openSettings: () -> Unit, noPlace
                         Text("Save Home & Office", style = MaterialTheme.typography.titleMedium, color = Ink)
                         Text(
                             "Named places make routes exact. Add them in Settings, or tap O / X on any trip.",
-                            style = MaterialTheme.typography.bodySmall, color = Ink.copy(alpha = 0.65f),
+                            style = MaterialTheme.typography.bodySmall, color = Txt.copy(alpha = 0.65f),
                         )
                     }
                 }
@@ -112,8 +114,8 @@ private fun RoutesBody(nav: NavHostController, openSettings: () -> Unit, noPlace
 
 @Composable
 fun RouteCard(g: RouteGroup, featured: Boolean, modifier: Modifier = Modifier, onClick: () -> Unit) {
-    val bg = if (featured) Ink else Snow
-    val fg = if (featured) Snow else Ink
+    val bg = if (featured) Ink else Card
+    val fg = if (featured) Snow else Txt
     val trend = remember(g.key, g.count) { g.trips.take(12).reversed().map { it.durationMs / 60000f } }
     Column(
         modifier.pressable(pressedScale = 0.97f, onClick = onClick).fillMaxWidth().clip(RoundedCornerShape(32.dp)).background(bg).padding(18.dp)
@@ -132,14 +134,14 @@ fun RouteCard(g: RouteGroup, featured: Boolean, modifier: Modifier = Modifier, o
                 )
             }
             Box(Modifier.size(40.dp).clip(CircleShape).background(if (featured) Lime else com.frontpagestudios.ox.ui.theme.Mist), contentAlignment = Alignment.Center) {
-                Icon(Icons.Rounded.NorthEast, null, tint = Ink, modifier = Modifier.size(18.dp))
+                Icon(Icons.Rounded.NorthEast, null, tint = if (featured) Ink else Txt, modifier = Modifier.size(18.dp))
             }
         }
         Spacer(Modifier.height(14.dp))
         Row(verticalAlignment = Alignment.Bottom) {
             Column {
                 SectionLabel("Avg", color = fg.copy(alpha = 0.5f))
-                Text(Format.duration(g.avgMs), style = MaterialTheme.typography.headlineMedium, color = if (featured) Lime else Ink)
+                Text(Format.duration(g.avgMs), style = MaterialTheme.typography.headlineMedium, color = if (featured) Lime else Txt)
             }
             Spacer(Modifier.width(22.dp))
             Column {
@@ -147,7 +149,7 @@ fun RouteCard(g: RouteGroup, featured: Boolean, modifier: Modifier = Modifier, o
                 Text(Format.duration(g.best?.durationMs ?: 0), style = MaterialTheme.typography.headlineMedium, color = fg)
             }
             Spacer(Modifier.weight(1f))
-            if (trend.size >= 2) Sparkline(trend, Modifier.width(96.dp).height(40.dp), color = if (featured) Lime else Ink)
+            if (trend.size >= 2) Sparkline(trend, Modifier.width(96.dp).height(40.dp), color = if (featured) Lime else Txt)
         }
     }
 }

@@ -41,6 +41,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.frontpagestudios.ox.ui.components.pressable
 import com.frontpagestudios.ox.ui.theme.Ink
+import com.frontpagestudios.ox.ui.theme.Card
+import com.frontpagestudios.ox.ui.theme.Txt
 import com.frontpagestudios.ox.ui.theme.Lime
 import com.frontpagestudios.ox.ui.theme.Mist
 import com.frontpagestudios.ox.ui.theme.Paper
@@ -80,7 +82,7 @@ private fun BottomBar(selected: Int, onSelect: (Int) -> Unit, modifier: Modifier
     Row(
         modifier.navigationBarsPadding().padding(bottom = 14.dp)
             .shadow(18.dp, RoundedCornerShape(44.dp), ambientColor = Ink.copy(alpha = 0.2f), spotColor = Ink.copy(alpha = 0.25f))
-            .clip(RoundedCornerShape(44.dp)).background(Snow).padding(8.dp),
+            .clip(RoundedCornerShape(44.dp)).background(Card).padding(8.dp),
         horizontalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         icons.forEachIndexed { i, icon ->
@@ -90,7 +92,7 @@ private fun BottomBar(selected: Int, onSelect: (Int) -> Unit, modifier: Modifier
                 Modifier.pressable { onSelect(i) }.size(56.dp).clip(CircleShape).background(bg),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(icon, null, tint = Ink, modifier = Modifier.size(24.dp))
+                Icon(icon, null, tint = Txt, modifier = Modifier.size(24.dp))
             }
         }
     }

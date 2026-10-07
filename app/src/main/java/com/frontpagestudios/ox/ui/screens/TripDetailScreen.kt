@@ -72,6 +72,8 @@ import com.frontpagestudios.ox.ui.components.icon
 import com.frontpagestudios.ox.ui.components.pressable
 import com.frontpagestudios.ox.ui.theme.Danger
 import com.frontpagestudios.ox.ui.theme.Ink
+import com.frontpagestudios.ox.ui.theme.Card
+import com.frontpagestudios.ox.ui.theme.Txt
 import com.frontpagestudios.ox.ui.theme.Lime
 import com.frontpagestudios.ox.ui.theme.Muted
 import com.frontpagestudios.ox.ui.theme.Paper
@@ -93,7 +95,7 @@ private fun TripDetailScreenBody(id: String, onBack: () -> Unit) {
         Box(Modifier.fillMaxSize().background(Paper), contentAlignment = Alignment.Center) {
             if (loaded) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("Trip not found", style = MaterialTheme.typography.headlineMedium, color = Ink)
+                    Text("Trip not found", style = MaterialTheme.typography.headlineMedium, color = Txt)
                     Spacer(Modifier.height(12.dp))
                     Chip("Go back", bg = Lime, modifier = Modifier.pressable { onBack() })
                 }
@@ -147,7 +149,7 @@ private fun TripDetail(trip: Trip, all: List<Trip>, onBack: () -> Unit) {
                 Chip(trip.mode.label, bg = Lime, icon = trip.mode.icon())
                 if (trip.auto) {
                     Spacer(Modifier.width(6.dp))
-                    Chip("Auto", bg = Snow, icon = Icons.Rounded.AutoAwesome)
+                    Chip("Auto", bg = Card, icon = Icons.Rounded.AutoAwesome)
                 }
             }
         }
@@ -166,7 +168,7 @@ private fun TripDetail(trip: Trip, all: List<Trip>, onBack: () -> Unit) {
                     Spacer(Modifier.height(6.dp))
                     Row(verticalAlignment = Alignment.Bottom) {
                         val (v, u) = Format.durationParts(trip.durationMs)
-                        Text(v, style = MaterialTheme.typography.displayLarge.copy(fontSize = MaterialTheme.typography.displayLarge.fontSize * 1.4f), color = Ink)
+                        Text(v, style = MaterialTheme.typography.displayLarge.copy(fontSize = MaterialTheme.typography.displayLarge.fontSize * 1.4f), color = Txt)
                         Spacer(Modifier.width(8.dp))
                         Text(u, style = MaterialTheme.typography.headlineMedium, color = Muted, modifier = Modifier.padding(bottom = 14.dp))
                         Spacer(Modifier.weight(1f))
@@ -190,7 +192,7 @@ private fun TripDetail(trip: Trip, all: List<Trip>, onBack: () -> Unit) {
             // origin → destination
             Reveal(200) {
                 Column(
-                    Modifier.fillMaxWidth().clip(RoundedCornerShape(32.dp)).background(Snow).padding(18.dp)
+                    Modifier.fillMaxWidth().clip(RoundedCornerShape(32.dp)).background(Card).padding(18.dp)
                 ) {
                     Stop("O", trip.fromName, Format.time(trip.start), origin = true) { endAction = 0 }
                     Row {
@@ -234,9 +236,9 @@ private fun TripDetail(trip: Trip, all: List<Trip>, onBack: () -> Unit) {
 
             if (stops.isNotEmpty()) {
                 Reveal(320) {
-                    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(36.dp)).background(Snow).padding(20.dp)) {
+                    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(36.dp)).background(Card).padding(20.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            SectionLabel("Stops & traffic signals", color = Ink)
+                            SectionLabel("Stops & traffic signals", color = Txt)
                             Spacer(Modifier.weight(1f))
                             Text("${Format.duration(Stops.totalMs(stops))} waiting", style = MaterialTheme.typography.labelMedium, color = Muted)
                         }
@@ -247,8 +249,8 @@ private fun TripDetail(trip: Trip, all: List<Trip>, onBack: () -> Unit) {
                                     Text("${i + 1}", style = MaterialTheme.typography.labelLarge, color = Ink)
                                 }
                                 Spacer(Modifier.width(12.dp))
-                                Text(Format.time(st.start), style = MaterialTheme.typography.titleSmall, color = Ink, modifier = Modifier.weight(1f))
-                                Text(Format.clock(st.durationMs), style = MaterialTheme.typography.titleSmall, color = Ink)
+                                Text(Format.time(st.start), style = MaterialTheme.typography.titleSmall, color = Txt, modifier = Modifier.weight(1f))
+                                Text(Format.clock(st.durationMs), style = MaterialTheme.typography.titleSmall, color = Txt)
                             }
                         }
                         Spacer(Modifier.height(6.dp))
@@ -281,7 +283,7 @@ private fun TripDetail(trip: Trip, all: List<Trip>, onBack: () -> Unit) {
             Spacer(Modifier.height(18.dp))
             Row(
                 Modifier.pressable { confirmDelete = true }.fillMaxWidth().clip(RoundedCornerShape(28.dp))
-                    .background(Snow).padding(18.dp),
+                    .background(Card).padding(18.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center,
             ) {
@@ -337,7 +339,7 @@ private fun TripDetail(trip: Trip, all: List<Trip>, onBack: () -> Unit) {
             },
             dismissButton = {
                 TextButton(onClick = { confirmDelete = false }) {
-                    Text("Keep", color = Ink, style = MaterialTheme.typography.labelLarge)
+                    Text("Keep", color = Txt, style = MaterialTheme.typography.labelLarge)
                 }
             },
         )
@@ -369,7 +371,7 @@ private fun Stop(badge: String, name: String, time: String, origin: Boolean, onC
         Spacer(Modifier.width(14.dp))
         Column(Modifier.weight(1f)) {
             SectionLabel(if (origin) "Origin" else "Destination")
-            Text(name, style = MaterialTheme.typography.titleLarge, color = Ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(name, style = MaterialTheme.typography.titleLarge, color = Txt, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
         Text(time, style = MaterialTheme.typography.labelLarge, color = Muted)
         Spacer(Modifier.width(8.dp))

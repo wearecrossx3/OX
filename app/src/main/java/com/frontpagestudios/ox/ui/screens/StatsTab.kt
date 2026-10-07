@@ -57,6 +57,8 @@ import com.frontpagestudios.ox.ui.components.WeekBars
 import com.frontpagestudios.ox.ui.components.icon
 import com.frontpagestudios.ox.ui.components.pressable
 import com.frontpagestudios.ox.ui.theme.Ink
+import com.frontpagestudios.ox.ui.theme.Card
+import com.frontpagestudios.ox.ui.theme.Txt
 import com.frontpagestudios.ox.ui.theme.Lime
 import com.frontpagestudios.ox.ui.theme.Mist
 import com.frontpagestudios.ox.ui.theme.Muted
@@ -87,7 +89,7 @@ private fun StatsTabBody(nav: NavHostController) {
             Text(
                 if (offset >= -1) w.label.replace(" ", "\n") else w.label,
                 style = if (offset >= -1) MaterialTheme.typography.displayLarge else MaterialTheme.typography.displaySmall,
-                color = Ink, modifier = Modifier.weight(1f),
+                color = Txt, modifier = Modifier.weight(1f),
             )
             CircleButton(Icons.AutoMirrored.Rounded.ArrowBack, size = 50.dp) { offset-- }
             Spacer(Modifier.width(8.dp))
@@ -100,15 +102,15 @@ private fun StatsTabBody(nav: NavHostController) {
 
         // scope switch
         Row(
-            Modifier.fillMaxWidth().clip(RoundedCornerShape(50)).background(Snow).padding(5.dp),
+            Modifier.fillMaxWidth().clip(RoundedCornerShape(50)).background(Card).padding(5.dp),
         ) {
             scopes.forEachIndexed { i, s ->
-                val bg by animateColorAsState(if (i == scope) Ink else Snow, tween(220), label = "sc")
+                val bg by animateColorAsState(if (i == scope) Ink else Card, tween(220), label = "sc")
                 Box(
                     Modifier.weight(1f).pressable { scope = i }.clip(RoundedCornerShape(50)).background(bg)
                         .padding(vertical = 13.dp),
                     contentAlignment = Alignment.Center,
-                ) { Text(s, style = MaterialTheme.typography.labelLarge, color = if (i == scope) Lime else Ink) }
+                ) { Text(s, style = MaterialTheme.typography.labelLarge, color = if (i == scope) Lime else Txt) }
             }
         }
         Spacer(Modifier.height(14.dp))
@@ -128,11 +130,11 @@ private fun StatsTabBody(nav: NavHostController) {
                     val better = diff <= 0
                     Box(
                         Modifier.padding(bottom = 14.dp).clip(RoundedCornerShape(50))
-                            .background(if (better) Lime else Snow).padding(horizontal = 12.dp, vertical = 6.dp)
+                            .background(if (better) Lime else Card).padding(horizontal = 12.dp, vertical = 6.dp)
                     ) {
                         Text(
                             if (diff == 0) "same as last wk" else "${if (diff > 0) "+" else "−"}${kotlin.math.abs(diff)} min vs last wk",
-                            style = MaterialTheme.typography.labelMedium, color = Ink,
+                            style = MaterialTheme.typography.labelMedium, color = if (better) Ink else Txt,
                         )
                     }
                 }
@@ -182,7 +184,7 @@ private fun StatsTabBody(nav: NavHostController) {
             SectionLabel("By mode")
             Spacer(Modifier.height(10.dp))
             Column(
-                Modifier.fillMaxWidth().clip(RoundedCornerShape(32.dp)).background(Snow).padding(20.dp),
+                Modifier.fillMaxWidth().clip(RoundedCornerShape(32.dp)).background(Card).padding(20.dp),
                 verticalArrangement = Arrangement.spacedBy(14.dp),
             ) {
                 TripMode.entries.forEach { m ->
@@ -212,12 +214,12 @@ private fun ModeBar(mode: TripMode, count: Int, time: Long, total: Long) {
     val anim by animateFloatAsState(frac, tween(900, easing = FastOutSlowInEasing), label = "mb")
     Row(verticalAlignment = Alignment.CenterVertically) {
         Box(Modifier.size(40.dp).clip(CircleShape).background(Mist), contentAlignment = Alignment.Center) {
-            Icon(mode.icon(), null, tint = Ink, modifier = Modifier.size(20.dp))
+            Icon(mode.icon(), null, tint = Txt, modifier = Modifier.size(20.dp))
         }
         Spacer(Modifier.width(12.dp))
         Column(Modifier.weight(1f)) {
             Row {
-                Text(mode.label, style = MaterialTheme.typography.titleSmall, color = Ink, modifier = Modifier.weight(1f))
+                Text(mode.label, style = MaterialTheme.typography.titleSmall, color = Txt, modifier = Modifier.weight(1f))
                 Text("$count · ${Format.duration(time)}", style = MaterialTheme.typography.labelMedium, color = Muted)
             }
             Spacer(Modifier.height(6.dp))
@@ -232,15 +234,15 @@ private fun ModeBar(mode: TripMode, count: Int, time: Long, total: Long) {
 private fun Highlight(label: String, trip: Trip, onClick: () -> Unit) {
     Row(
         Modifier.pressable(sound = Sfx.S.TAP, onClick = onClick).fillMaxWidth().clip(RoundedCornerShape(30.dp))
-            .background(Snow).padding(18.dp),
+            .background(Card).padding(18.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(Modifier.weight(1f)) {
             SectionLabel(label)
-            Text(trip.title, style = MaterialTheme.typography.titleMedium, color = Ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(trip.title, style = MaterialTheme.typography.titleMedium, color = Txt, maxLines = 1, overflow = TextOverflow.Ellipsis)
             Text("${Format.day(trip.start)} · ${Format.distance(trip.distance)}", style = MaterialTheme.typography.bodySmall, color = Muted)
         }
-        Text(Format.duration(trip.durationMs), style = MaterialTheme.typography.headlineSmall, color = Ink)
+        Text(Format.duration(trip.durationMs), style = MaterialTheme.typography.headlineSmall, color = Txt)
     }
 }
 
@@ -255,12 +257,12 @@ private fun NavCard(
     title: String, body: String, icon: androidx.compose.ui.graphics.vector.ImageVector,
     accent: androidx.compose.ui.graphics.Color, modifier: Modifier = Modifier, onClick: () -> Unit,
 ) {
-    Column(modifier.pressable(onClick = onClick).clip(RoundedCornerShape(30.dp)).background(Snow).padding(16.dp)) {
+    Column(modifier.pressable(onClick = onClick).clip(RoundedCornerShape(30.dp)).background(Card).padding(16.dp)) {
         Box(Modifier.size(40.dp).clip(CircleShape).background(accent), contentAlignment = Alignment.Center) {
-            Icon(icon, null, tint = Ink, modifier = Modifier.size(20.dp))
+            Icon(icon, null, tint = Txt, modifier = Modifier.size(20.dp))
         }
         Spacer(Modifier.height(12.dp))
-        Text(title, style = MaterialTheme.typography.titleMedium, color = Ink)
+        Text(title, style = MaterialTheme.typography.titleMedium, color = Txt)
         Text(body, style = MaterialTheme.typography.bodySmall, color = Muted)
     }
 }

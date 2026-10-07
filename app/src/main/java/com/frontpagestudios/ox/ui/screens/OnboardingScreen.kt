@@ -90,6 +90,8 @@ import com.frontpagestudios.ox.ui.components.SectionLabel
 import com.frontpagestudios.ox.ui.components.drawPartialPath
 import com.frontpagestudios.ox.ui.components.pressable
 import com.frontpagestudios.ox.ui.theme.Ink
+import com.frontpagestudios.ox.ui.theme.Card
+import com.frontpagestudios.ox.ui.theme.Txt
 import com.frontpagestudios.ox.ui.theme.Lime
 import com.frontpagestudios.ox.ui.theme.Mist
 import com.frontpagestudios.ox.ui.theme.Muted
@@ -99,14 +101,14 @@ import com.frontpagestudios.ox.util.Perms
 import com.frontpagestudios.ox.util.Sfx
 import kotlinx.coroutines.launch
 
-private val pageBg = listOf(Ink, Paper, Lime, Paper)
 
 @Composable
 fun OnboardingScreen(onDone: () -> Unit) {
+    val pageBg = listOf(Ink, Paper, Lime, Paper)
     val pager = rememberPagerState { 4 }
     val scope = rememberCoroutineScope()
     val bg by animateColorAsState(pageBg[pager.currentPage], tween(450), label = "bg")
-    val fg = if (pager.currentPage == 0) Snow else Ink
+    val fg = when (pager.currentPage) { 0 -> Snow; 2 -> Ink; else -> Txt }
 
     Box(Modifier.fillMaxSize().background(bg)) {
         HorizontalPager(pager, Modifier.fillMaxSize(), userScrollEnabled = true) { page ->
@@ -231,14 +233,14 @@ private fun AutoPage() {
                 Chip("24 min", bg = Lime, icon = Icons.Rounded.Timer)
             }
             Reveal(500, Modifier.align(Alignment.CenterStart).padding(18.dp)) {
-                Chip("42 km/h avg", bg = Snow)
+                Chip("42 km/h avg", bg = Card)
             }
         }
         Spacer(Modifier.height(28.dp))
         PageText(
             "Trips track\nthemselves.",
             "Hop on your bike or car and OX starts on its own. Prefer control? Start any trip manually.",
-            Ink,
+            Txt,
         )
         Spacer(Modifier.height(120.dp))
     }
@@ -316,20 +318,20 @@ private fun SetupPage(onDone: () -> Unit) {
             .padding(horizontal = 24.dp)
     ) {
         Spacer(Modifier.height(28.dp))
-        Text("Let's set\nyou up.", style = MaterialTheme.typography.displayLarge, color = Ink)
+        Text("Let's set\nyou up.", style = MaterialTheme.typography.displayLarge, color = Txt)
         Spacer(Modifier.height(28.dp))
 
         SectionLabel("What should we call you?")
         Spacer(Modifier.height(10.dp))
         Box(
-            Modifier.fillMaxWidth().clip(RoundedCornerShape(26.dp)).background(Snow).padding(horizontal = 22.dp, vertical = 18.dp)
+            Modifier.fillMaxWidth().clip(RoundedCornerShape(26.dp)).background(Card).padding(horizontal = 22.dp, vertical = 18.dp)
         ) {
             if (name.isEmpty()) Text("Your name", style = MaterialTheme.typography.titleLarge, color = Muted)
             BasicTextField(
                 value = name,
                 onValueChange = { Prefs.setName(it.take(20)) },
                 singleLine = true,
-                textStyle = MaterialTheme.typography.titleLarge.copy(color = Ink),
+                textStyle = MaterialTheme.typography.titleLarge.copy(color = Txt),
                 cursorBrush = SolidColor(Ink),
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
                 modifier = Modifier.fillMaxWidth(),
@@ -384,8 +386,8 @@ private fun SetupPage(onDone: () -> Unit) {
 
 @Composable
 private fun PermissionItem(r: PermRow) {
-    val bg by animateColorAsState(if (r.granted) Ink else Snow, tween(300), label = "pbg")
-    val fg = if (r.granted) Snow else Ink
+    val bg by animateColorAsState(if (r.granted) Ink else Card, tween(300), label = "pbg")
+    val fg = if (r.granted) Snow else Txt
     Row(
         Modifier
             .pressable(enabled = !r.granted && r.enabled) { r.ask() }
@@ -397,13 +399,13 @@ private fun PermissionItem(r: PermRow) {
         Box(
             Modifier.size(42.dp).clip(CircleShape).background(if (r.granted) Lime else Mist),
             contentAlignment = Alignment.Center,
-        ) { Icon(r.icon, null, tint = Ink, modifier = Modifier.size(20.dp)) }
+        ) { Icon(r.icon, null, tint = if (r.granted) Ink else Txt, modifier = Modifier.size(20.dp)) }
         Spacer(Modifier.width(14.dp))
         Column(Modifier.weight(1f)) {
             Text(r.title, style = MaterialTheme.typography.titleMedium, color = fg)
             Text(r.body, style = MaterialTheme.typography.bodySmall, color = fg.copy(alpha = 0.55f))
         }
         if (r.granted) Icon(Icons.Rounded.Check, null, tint = Lime)
-        else Text("Allow", style = MaterialTheme.typography.labelLarge, color = Ink)
+        else Text("Allow", style = MaterialTheme.typography.labelLarge, color = Txt)
     }
 }
