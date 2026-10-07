@@ -26,7 +26,7 @@ jobs:
       - name: Build release APK
         run: |
           set -o pipefail
-          gradle assembleRelease 2>&1 | tee build.log
+          gradle assembleRelease bundleRelease 2>&1 | tee build.log
 
       - name: Share build log on failure
         if: failure()
@@ -41,12 +41,16 @@ jobs:
           git push -f origin ci-logs
 
       - name: Rename APK
-        run: cp app/build/outputs/apk/release/app-release.apk OX-v1.0.${{ github.run_number }}.apk
+        run: |
+          cp app/build/outputs/apk/release/app-release.apk OX-v1.0.${{ github.run_number }}.apk
+          cp app/build/outputs/bundle/release/app-release.aab OX-v1.0.${{ github.run_number }}-playstore.aab
 
       - uses: actions/upload-artifact@v4
         with:
           name: OX-apk
-          path: OX-*.apk
+          path: |
+            OX-*.apk
+            OX-*.aab
 
       - name: Publish release
         uses: softprops/action-gh-release@v2
@@ -54,4 +58,6 @@ jobs:
           tag_name: build-${{ github.run_number }}
           name: OX v1.0.${{ github.run_number }}
           prerelease: true
-          files: OX-*.apk
+          files: |
+            OX-*.apk
+            OX-*.aab
