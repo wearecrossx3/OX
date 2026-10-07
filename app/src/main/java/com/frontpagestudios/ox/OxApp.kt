@@ -13,6 +13,7 @@ class OxApp : Application() {
         super.onCreate()
         Prefs.init(this)
         TripRepo.init(this)
+        com.frontpagestudios.ox.data.Places.init(this)
         Sfx.init(this)
         Notifs.createChannels(this)
         Configuration.getInstance().apply {

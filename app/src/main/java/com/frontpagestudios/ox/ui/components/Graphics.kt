@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -244,19 +245,17 @@ fun EmptyRouteArt(modifier: Modifier = Modifier, caption: String) {
     }
 }
 
-/** The OX logo: the word itself, Space Grotesk Bold, tight. */
+/**
+ * The OX logo: a bold origin ring and a round-capped destination cross.
+ * [height] is the ring's outer size; the mark is about 2.07x as wide.
+ */
 @Composable
-fun OxWordmark(size: TextUnit, color: Color, modifier: Modifier = Modifier) {
-    Text(
-        "OX",
-        modifier = modifier,
-        color = color,
-        style = androidx.compose.ui.text.TextStyle(
-            fontFamily = Grotesk,
-            fontWeight = FontWeight.Bold,
-            fontSize = size,
-            lineHeight = size * 0.86f,
-            letterSpacing = size * -0.05f,
-        ),
-    )
+fun OxLogo(height: androidx.compose.ui.unit.Dp, color: Color, modifier: Modifier = Modifier) {
+    Canvas(modifier.size(width = height * (62f / 30f), height = height)) {
+        val u = size.height / 30f
+        val sw = 8f * u
+        drawCircle(color, 11f * u, Offset(15f * u, 15f * u), style = Stroke(sw))
+        drawLine(color, Offset(40f * u, 6f * u), Offset(58f * u, 24f * u), sw, StrokeCap.Round)
+        drawLine(color, Offset(58f * u, 6f * u), Offset(40f * u, 24f * u), sw, StrokeCap.Round)
+    }
 }

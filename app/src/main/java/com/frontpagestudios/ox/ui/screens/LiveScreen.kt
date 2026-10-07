@@ -64,7 +64,7 @@ import com.frontpagestudios.ox.ui.components.AnimatedNumber
 import com.frontpagestudios.ox.ui.components.CircleButton
 import com.frontpagestudios.ox.ui.components.ModeSelector
 import com.frontpagestudios.ox.ui.components.OxMap
-import com.frontpagestudios.ox.ui.components.OxWordmark
+import com.frontpagestudios.ox.ui.components.OxLogo
 import androidx.compose.ui.unit.sp
 import com.frontpagestudios.ox.ui.components.PulseDot
 import com.frontpagestudios.ox.ui.components.SectionLabel
@@ -145,6 +145,9 @@ fun LiveScreen(onClose: () -> Unit, onSaved: (String) -> Unit) {
     val l = live
     val pts = remember(l?.points?.size) { l?.points?.map { GeoPoint(it.lat, it.lon) } ?: emptyList() }
     val here = l?.current?.let { GeoPoint(it.lat, it.lon) }
+    val liveStops = remember(l?.points?.size) {
+        if (l != null && l.mode.isVehicle) com.frontpagestudios.ox.util.Stops.find(l.points) else emptyList()
+    }
 
     Box(Modifier.fillMaxSize().background(Ink)) {
         OxMap(
@@ -210,6 +213,12 @@ fun LiveScreen(onClose: () -> Unit, onSaved: (String) -> Unit) {
                 Column(horizontalAlignment = Alignment.End, modifier = Modifier.padding(bottom = 16.dp)) {
                     SectionLabel("Top", color = Snow.copy(alpha = 0.45f))
                     Text("${Format.kmh(l?.maxSpeed ?: 0f)}", style = MaterialTheme.typography.headlineMedium, color = Snow)
+                    if (l != null && l.mode.isVehicle) {
+                        Text(
+                            "${liveStops.size} stop${if (liveStops.size == 1) "" else "s"}",
+                            style = MaterialTheme.typography.labelMedium, color = com.frontpagestudios.ox.ui.theme.Amber,
+                        )
+                    }
                 }
             }
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -237,7 +246,7 @@ fun LiveScreen(onClose: () -> Unit, onSaved: (String) -> Unit) {
                 contentAlignment = Alignment.Center,
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    OxWordmark(96.sp, Lime)
+                    OxLogo(46.dp, Lime)
                     Spacer(Modifier.height(6.dp))
                     PulseDot()
                     Spacer(Modifier.height(18.dp))

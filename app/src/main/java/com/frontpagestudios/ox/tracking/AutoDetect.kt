@@ -56,6 +56,7 @@ class TransitionReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         Prefs.init(context)
         TripRepo.init(context)
+        com.frontpagestudios.ox.data.Places.init(context)
         if (!ActivityTransitionResult.hasResult(intent)) return
         val result = ActivityTransitionResult.extractResult(intent) ?: return
         if (!Prefs.autoDetect.value) return

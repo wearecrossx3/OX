@@ -65,7 +65,7 @@ import com.frontpagestudios.ox.util.Sfx
 private val scopes = listOf("Commute", "Walks", "All")
 
 @Composable
-fun StatsTab(nav: NavHostController) {
+private fun StatsTabBody(nav: NavHostController) {
     val trips by TripRepo.trips.collectAsState()
     var offset by rememberSaveable { mutableIntStateOf(0) }
     var scope by rememberSaveable { mutableIntStateOf(0) }
@@ -156,6 +156,20 @@ fun StatsTab(nav: NavHostController) {
             StatTile(tv, tu, "Time on the move", Modifier.weight(1f))
         }
 
+        val waitMs = remember(w) { w.trips.filter { it.mode.isVehicle }.sumOf { com.frontpagestudios.ox.util.Stops.totalMs(com.frontpagestudios.ox.util.Stops.find(it.points)) } }
+        val fuel = remember(w) { w.trips.mapNotNull { com.frontpagestudios.ox.data.Prefs.fuelCost(it.mode, it.distance) }.sum() }
+        if (scope != 1) {
+            Spacer(Modifier.height(10.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                val (wv, wu) = Format.durationParts(waitMs)
+                StatTile(wv, wu, "Waiting at signals", Modifier.weight(1f))
+                StatTile(
+                    if (fuel > 0) "₹" + String.format(java.util.Locale.US, "%.0f", fuel) else "—", null,
+                    if (fuel > 0) "Fuel spent (est.)" else "Set fuel price in Settings", Modifier.weight(1f), dark = true,
+                )
+            }
+        }
+
         if (w.trips.isNotEmpty()) {
             Spacer(Modifier.height(22.dp))
             SectionLabel("By mode")
@@ -221,4 +235,10 @@ private fun Highlight(label: String, trip: Trip, onClick: () -> Unit) {
         }
         Text(Format.duration(trip.durationMs), style = MaterialTheme.typography.headlineSmall, color = Ink)
     }
+}
+
+@Composable
+fun StatsTab(nav: NavHostController) {
+    val places by com.frontpagestudios.ox.data.Places.places.collectAsState()
+    androidx.compose.runtime.key(places) { StatsTabBody(nav) }
 }

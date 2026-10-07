@@ -24,12 +24,18 @@ data class Trip(
     val maxSpeed: Float, // m/s
     val origin: String?,
     val destination: String?,
+    /** true when the user typed the names themselves; they win over saved places */
+    val renamed: Boolean = false,
 ) {
     val durationMs: Long get() = (end - start).coerceAtLeast(0)
     val avgSpeed: Double
         get() = if (durationMs > 0) distance / (durationMs / 1000.0) else 0.0
+    val fromName: String
+        get() = if (renamed && origin != null) origin else Places.match(points.firstOrNull())?.name ?: origin ?: "Start"
+    val toName: String
+        get() = if (renamed && destination != null) destination else Places.match(points.lastOrNull())?.name ?: destination ?: "Finish"
     val title: String
-        get() = "${origin ?: "Start"} → ${destination ?: "Finish"}"
+        get() = "$fromName → $toName"
     val steps: Int get() = (distance / 0.76).toInt()
 }
 

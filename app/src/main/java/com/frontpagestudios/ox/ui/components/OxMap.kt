@@ -65,6 +65,9 @@ fun OxMap(
     fitPoints: List<GeoPoint>? = null,
     recenterKey: Any? = null,
     lineWidthDp: Float = 5f,
+    extraLines: List<List<GeoPoint>> = emptyList(),
+    extraKey: Any? = null,
+    stops: List<GeoPoint> = emptyList(),
 ) {
     val context = LocalContext.current
     val holder = remember { MapHolder(context, dark) }
@@ -88,7 +91,7 @@ fun OxMap(
     AndroidView(
         factory = { holder.map },
         modifier = modifier,
-        update = { holder.update(points, interactive, follow, showEnds, liveDot, fitKey, fitPoints, recenterKey, lineWidthDp) },
+        update = { holder.setExtras(extraLines, extraKey); holder.setStops(stops); holder.update(points, interactive, follow, showEnds, liveDot, fitKey, fitPoints, recenterKey, lineWidthDp) },
     )
 }
 
@@ -141,6 +144,48 @@ private class MapHolder(val ctx: Context, dark: Boolean) {
         map.overlays.add(startM)
         map.overlays.add(endM)
         map.overlays.add(dotM)
+    }
+
+    private val stopMarkers = mutableListOf<Marker>()
+    private var lastStops: List<GeoPoint>? = null
+
+    fun setStops(list: List<GeoPoint>) {
+        if (list == lastStops) return
+        lastStops = list
+        stopMarkers.forEach { map.overlays.remove(it) }
+        stopMarkers.clear()
+        list.forEachIndexed { i, gp ->
+            val m = marker(pin("${i + 1}", 0xFFFFB020.toInt(), 0xFF0D0D0D.toInt(), 24))
+            m.position = gp
+            m.isEnabled = true
+            stopMarkers.add(m)
+            map.overlays.add(m)
+        }
+        map.invalidate()
+    }
+
+    private val extras = mutableListOf<Polyline>()
+    private var lastExtraKey: Any? = Any()
+
+    fun setExtras(lines: List<List<GeoPoint>>, key: Any?) {
+        if (key == lastExtraKey) return
+        lastExtraKey = key
+        extras.forEach { map.overlays.remove(it) }
+        extras.clear()
+        lines.forEachIndexed { i, pts ->
+            val pl = Polyline(map).apply {
+                outlinePaint.apply {
+                    color = 0x55FFFFFF
+                    strokeWidth = 3f * density
+                    strokeCap = Paint.Cap.ROUND; strokeJoin = Paint.Join.ROUND; isAntiAlias = true
+                }
+                setInfoWindow(null as InfoWindow?)
+                setPoints(pts)
+            }
+            extras.add(pl)
+            map.overlays.add(i, pl)
+        }
+        map.invalidate()
     }
 
     private fun marker(icon: BitmapDrawable) = Marker(map).apply {
@@ -215,8 +260,8 @@ private class MapHolder(val ctx: Context, dark: Boolean) {
     private fun font(): Typeface =
         runCatching { ResourcesCompat.getFont(ctx, R.font.space_grotesk) }.getOrNull() ?: Typeface.DEFAULT_BOLD
 
-    private fun pin(label: String, bg: Int, fg: Int): BitmapDrawable {
-        val s = (34 * density).toInt()
+    private fun pin(label: String, bg: Int, fg: Int, sizeDp: Int = 34): BitmapDrawable {
+        val s = (sizeDp * density).toInt()
         val bmp = Bitmap.createBitmap(s, s, Bitmap.Config.ARGB_8888)
         val c = Canvas(bmp)
         val p = Paint(Paint.ANTI_ALIAS_FLAG)

@@ -66,7 +66,7 @@ private fun Trip.matches(f: Int) = when (f) {
 }
 
 @Composable
-fun HistoryTab(nav: NavHostController) {
+private fun HistoryTabBody(nav: NavHostController) {
     val trips by TripRepo.trips.collectAsState()
     var filter by rememberSaveable { mutableIntStateOf(0) }
     val shown = remember(trips, filter) { trips.filter { it.matches(filter) } }
@@ -167,4 +167,10 @@ fun TripRow(trip: Trip, modifier: Modifier = Modifier, onClick: () -> Unit) {
             Text(u, style = MaterialTheme.typography.labelMedium, color = Muted)
         }
     }
+}
+
+@Composable
+fun HistoryTab(nav: NavHostController) {
+    val places by com.frontpagestudios.ox.data.Places.places.collectAsState()
+    androidx.compose.runtime.key(places) { HistoryTabBody(nav) }
 }

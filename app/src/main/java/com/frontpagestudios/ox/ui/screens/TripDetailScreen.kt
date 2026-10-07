@@ -50,6 +50,17 @@ import androidx.compose.ui.unit.dp
 import com.frontpagestudios.ox.data.Trip
 import com.frontpagestudios.ox.data.TripMode
 import com.frontpagestudios.ox.data.TripRepo
+import com.frontpagestudios.ox.data.Places
+import com.frontpagestudios.ox.data.Prefs
+import com.frontpagestudios.ox.util.Stops
+import com.frontpagestudios.ox.ui.theme.Amber
+import androidx.compose.material.icons.rounded.LocalGasStation
+import com.frontpagestudios.ox.ui.components.EndActionsDialog
+import com.frontpagestudios.ox.ui.components.RenameTripDialog
+import com.frontpagestudios.ox.ui.components.SavePlaceDialog
+import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import com.frontpagestudios.ox.ui.components.Chip
 import com.frontpagestudios.ox.ui.components.CircleButton
 import com.frontpagestudios.ox.ui.components.OxMap
@@ -73,7 +84,7 @@ import kotlin.math.abs
 import kotlin.math.max
 
 @Composable
-fun TripDetailScreen(id: String, onBack: () -> Unit) {
+private fun TripDetailScreenBody(id: String, onBack: () -> Unit) {
     val trips by TripRepo.trips.collectAsState()
     val loaded by TripRepo.loaded.collectAsState()
     val trip = trips.firstOrNull { it.id == id }
@@ -104,6 +115,12 @@ private fun TripDetail(trip: Trip, all: List<Trip>, onBack: () -> Unit) {
     }
     val shown = geo.take(max(2, (geo.size * draw.value).toInt()).coerceAtMost(geo.size))
     var confirmDelete by remember { mutableStateOf(false) }
+    val stops = remember(trip.id) { if (trip.mode.isVehicle) Stops.find(trip.points) else emptyList() }
+    val stopGeo = remember(trip.id) { stops.map { org.osmdroid.util.GeoPoint(it.lat, it.lon) } }
+    var endAction by remember { mutableStateOf<Int?>(null) }
+    var savePlaceFor by remember { mutableStateOf<Int?>(null) }
+    var renaming by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
 
     val sameMode = remember(all, trip.id) { weekSummary(all, 0) { it.mode == trip.mode && it.id != trip.id } }
 
@@ -115,6 +132,7 @@ private fun TripDetail(trip: Trip, all: List<Trip>, onBack: () -> Unit) {
                 fitKey = trip.id,
                 fitPoints = geo,
                 lineWidthDp = 5f,
+                stops = if (draw.value >= 0.99f) stopGeo else emptyList(),
             )
             Box(
                 Modifier.fillMaxWidth().height(130.dp)
@@ -174,14 +192,14 @@ private fun TripDetail(trip: Trip, all: List<Trip>, onBack: () -> Unit) {
                 Column(
                     Modifier.fillMaxWidth().clip(RoundedCornerShape(32.dp)).background(Snow).padding(18.dp)
                 ) {
-                    Stop("O", trip.origin ?: "Start", Format.time(trip.start), origin = true)
+                    Stop("O", trip.fromName, Format.time(trip.start), origin = true) { endAction = 0 }
                     Row {
                         Spacer(Modifier.width(19.dp))
                         Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.padding(vertical = 6.dp)) {
                             repeat(3) { Box(Modifier.size(4.dp).clip(CircleShape).background(Muted.copy(alpha = 0.5f))) }
                         }
                     }
-                    Stop("X", trip.destination ?: "Finish", Format.time(trip.end), origin = false)
+                    Stop("X", trip.toName, Format.time(trip.end), origin = false) { endAction = 1 }
                 }
             }
             Spacer(Modifier.height(10.dp))
@@ -198,14 +216,47 @@ private fun TripDetail(trip: Trip, all: List<Trip>, onBack: () -> Unit) {
                         if (trip.mode == TripMode.WALK) {
                             StatTile("%,d".format(trip.steps), null, "Steps (est.)", Modifier.weight(1f), icon = Icons.AutoMirrored.Rounded.DirectionsWalk)
                         } else {
-                            val stopped = remember(trip.id) { stoppedMs(trip) }
-                            val (sv, su) = Format.durationParts(stopped)
-                            StatTile(sv, su, "Stopped / signals", Modifier.weight(1f))
+                            StatTile("${stops.size}", if (stops.size == 1) "stop" else "stops", "Signals & halts · ${Format.duration(Stops.totalMs(stops))}", Modifier.weight(1f))
+                        }
+                    }
+                    val cost = Prefs.fuelCost(trip.mode, trip.distance)
+                    if (cost != null) {
+                        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            StatTile("₹" + String.format(java.util.Locale.US, "%.0f", cost), null, "Fuel (est.)", Modifier.weight(1f), icon = Icons.Rounded.LocalGasStation)
+                            val moving = (trip.durationMs - Stops.totalMs(stops)).coerceAtLeast(0)
+                            val (mv, mu) = Format.durationParts(moving)
+                            StatTile(mv, mu, "Actually moving", Modifier.weight(1f))
                         }
                     }
                 }
             }
             Spacer(Modifier.height(10.dp))
+
+            if (stops.isNotEmpty()) {
+                Reveal(320) {
+                    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(36.dp)).background(Snow).padding(20.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            SectionLabel("Stops & traffic signals", color = Ink)
+                            Spacer(Modifier.weight(1f))
+                            Text("${Format.duration(Stops.totalMs(stops))} waiting", style = MaterialTheme.typography.labelMedium, color = Muted)
+                        }
+                        Spacer(Modifier.height(12.dp))
+                        stops.forEachIndexed { i, st ->
+                            Row(Modifier.padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+                                Box(Modifier.size(30.dp).clip(CircleShape).background(Amber), contentAlignment = Alignment.Center) {
+                                    Text("${i + 1}", style = MaterialTheme.typography.labelLarge, color = Ink)
+                                }
+                                Spacer(Modifier.width(12.dp))
+                                Text(Format.time(st.start), style = MaterialTheme.typography.titleSmall, color = Ink, modifier = Modifier.weight(1f))
+                                Text(Format.clock(st.durationMs), style = MaterialTheme.typography.titleSmall, color = Ink)
+                            }
+                        }
+                        Spacer(Modifier.height(6.dp))
+                        Text("Numbers match the amber dots on the map.", style = MaterialTheme.typography.bodySmall, color = Muted)
+                    }
+                }
+                Spacer(Modifier.height(10.dp))
+            }
 
             if (trip.points.size > 3) {
                 Reveal(360) {
@@ -240,6 +291,33 @@ private fun TripDetail(trip: Trip, all: List<Trip>, onBack: () -> Unit) {
             }
             Spacer(Modifier.height(30.dp))
             Spacer(Modifier.navigationBarsPadding())
+        }
+    }
+
+    endAction?.let { which ->
+        EndActionsDialog(
+            label = if (which == 0) "Origin · O" else "Destination · X",
+            name = if (which == 0) trip.fromName else trip.toName,
+            onDismiss = { endAction = null },
+            onSavePlace = { endAction = null; savePlaceFor = which },
+            onRename = { endAction = null; renaming = true },
+        )
+    }
+    savePlaceFor?.let { which ->
+        val p = if (which == 0) trip.points.firstOrNull() else trip.points.lastOrNull()
+        SavePlaceDialog(
+            title = if (which == 0) "Save the start as a place" else "Save the finish as a place",
+            initialName = "",
+            onDismiss = { savePlaceFor = null },
+        ) { name, kind ->
+            if (p != null) Places.add(name, kind, p.lat, p.lon)
+            savePlaceFor = null
+        }
+    }
+    if (renaming) {
+        RenameTripDialog(trip.fromName, trip.toName, onDismiss = { renaming = false }) { a, b ->
+            renaming = false
+            scope.launch { TripRepo.save(trip.copy(origin = a, destination = b, renamed = true)) }
         }
     }
 
@@ -280,8 +358,8 @@ private fun stoppedMs(trip: Trip): Long {
 }
 
 @Composable
-private fun Stop(badge: String, name: String, time: String, origin: Boolean) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
+private fun Stop(badge: String, name: String, time: String, origin: Boolean, onClick: () -> Unit) {
+    Row(Modifier.pressable(pressedScale = 0.98f, onClick = onClick), verticalAlignment = Alignment.CenterVertically) {
         Box(
             Modifier.size(42.dp).clip(CircleShape).background(if (origin) Ink else Lime),
             contentAlignment = Alignment.Center,
@@ -294,5 +372,13 @@ private fun Stop(badge: String, name: String, time: String, origin: Boolean) {
             Text(name, style = MaterialTheme.typography.titleLarge, color = Ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
         Text(time, style = MaterialTheme.typography.labelLarge, color = Muted)
+        Spacer(Modifier.width(8.dp))
+        Icon(Icons.Rounded.Edit, "Edit", tint = Muted, modifier = Modifier.size(16.dp))
     }
+}
+
+@Composable
+fun TripDetailScreen(id: String, onBack: () -> Unit) {
+    val places by com.frontpagestudios.ox.data.Places.places.collectAsState()
+    androidx.compose.runtime.key(places) { TripDetailScreenBody(id, onBack) }
 }

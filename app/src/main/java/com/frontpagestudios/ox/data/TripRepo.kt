@@ -84,6 +84,7 @@ object TripRepo {
         put("mode", t.mode.name); put("auto", t.auto)
         put("distance", t.distance); put("maxSpeed", t.maxSpeed.toDouble())
         put("origin", t.origin ?: JSONObject.NULL); put("destination", t.destination ?: JSONObject.NULL)
+        put("renamed", t.renamed)
         put("points", pointsToJson(t.points))
     }
 
@@ -98,6 +99,7 @@ object TripRepo {
         maxSpeed = o.optDouble("maxSpeed", 0.0).toFloat(),
         origin = if (o.isNull("origin")) null else o.optString("origin"),
         destination = if (o.isNull("destination")) null else o.optString("destination"),
+        renamed = o.optBoolean("renamed"),
     )
 
     private fun liveToJson(l: LiveTrip) = JSONObject().apply {

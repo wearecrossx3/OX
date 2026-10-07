@@ -84,7 +84,7 @@ import com.frontpagestudios.ox.ui.components.Chip
 import com.frontpagestudios.ox.ui.components.EmptyRouteArt
 import com.frontpagestudios.ox.ui.components.ModeSelector
 import com.frontpagestudios.ox.ui.components.LimePill
-import com.frontpagestudios.ox.ui.components.OxWordmark
+import com.frontpagestudios.ox.ui.components.OxLogo
 import com.frontpagestudios.ox.ui.components.Reveal
 import com.frontpagestudios.ox.ui.components.SectionLabel
 import com.frontpagestudios.ox.ui.components.drawPartialPath
@@ -172,7 +172,7 @@ private fun IntroPage(onNext: () -> Unit) {
         )
         Spacer(Modifier.weight(1f))
         Reveal(0) {
-            OxWordmark(size = 200.sp, color = Lime, modifier = Modifier.padding(start = 0.dp))
+            OxLogo(64.dp, Lime)
         }
         Spacer(Modifier.height(10.dp))
         Canvas(Modifier.fillMaxWidth().height(56.dp)) {

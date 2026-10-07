@@ -103,6 +103,10 @@ fun OxRoot(deepLink: MutableStateFlow<DeepLink?>) {
                 },
             )
         }
+        composable("route/{key}") { entry ->
+            val key = android.net.Uri.decode(entry.arguments?.getString("key") ?: "")
+            com.frontpagestudios.ox.ui.screens.RouteDetailScreen(routeKey = key, nav = nav, onBack = { nav.popBackStack() })
+        }
         composable(Routes.TRIP) { entry ->
             val id = entry.arguments?.getString("id") ?: ""
             TripDetailScreen(id = id, onBack = { nav.popBackStack() })

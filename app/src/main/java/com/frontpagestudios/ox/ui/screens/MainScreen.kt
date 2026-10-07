@@ -23,6 +23,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.BarChart
 import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.Home
+import androidx.compose.material.icons.rounded.Directions
 import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
@@ -59,7 +60,8 @@ fun MainScreen(nav: NavHostController) {
             when (t) {
                 0 -> HomeTab(nav, openTab = { tab = it })
                 1 -> HistoryTab(nav)
-                2 -> StatsTab(nav)
+                2 -> RoutesTab(nav, openSettings = { tab = 4 })
+                3 -> StatsTab(nav)
                 else -> SettingsTab()
             }
         }
@@ -74,18 +76,18 @@ fun MainScreen(nav: NavHostController) {
 
 @Composable
 private fun BottomBar(selected: Int, onSelect: (Int) -> Unit, modifier: Modifier = Modifier) {
-    val icons = listOf(Icons.Rounded.Home, Icons.Rounded.History, Icons.Rounded.BarChart, Icons.Rounded.Tune)
+    val icons = listOf(Icons.Rounded.Home, Icons.Rounded.History, Icons.Rounded.Directions, Icons.Rounded.BarChart, Icons.Rounded.Tune)
     Row(
         modifier.navigationBarsPadding().padding(bottom = 14.dp)
             .shadow(18.dp, RoundedCornerShape(44.dp), ambientColor = Ink.copy(alpha = 0.2f), spotColor = Ink.copy(alpha = 0.25f))
             .clip(RoundedCornerShape(44.dp)).background(Snow).padding(8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         icons.forEachIndexed { i, icon ->
             val on = i == selected
             val bg by animateColorAsState(if (on) Lime else Mist.copy(alpha = 0.6f), tween(260), label = "nav")
             Box(
-                Modifier.pressable { onSelect(i) }.size(60.dp).clip(CircleShape).background(bg),
+                Modifier.pressable { onSelect(i) }.size(56.dp).clip(CircleShape).background(bg),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(icon, null, tint = Ink, modifier = Modifier.size(24.dp))

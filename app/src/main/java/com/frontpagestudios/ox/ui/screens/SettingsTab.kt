@@ -57,10 +57,17 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.frontpagestudios.ox.BuildConfig
 import com.frontpagestudios.ox.data.Prefs
+import com.frontpagestudios.ox.data.Places
+import com.frontpagestudios.ox.ui.components.SavePlaceDialog
+import com.frontpagestudios.ox.ui.components.icon
+import android.widget.Toast
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Close
+import androidx.compose.runtime.mutableStateOf
 import com.frontpagestudios.ox.data.TripMode
 import com.frontpagestudios.ox.tracking.AutoDetect
 import com.frontpagestudios.ox.ui.components.ModeSelector
-import com.frontpagestudios.ox.ui.components.OxWordmark
+import com.frontpagestudios.ox.ui.components.OxLogo
 import androidx.compose.ui.unit.sp
 import com.frontpagestudios.ox.ui.components.SectionLabel
 import com.frontpagestudios.ox.ui.components.pressable
@@ -89,6 +96,23 @@ fun SettingsTab() {
     val sound by Prefs.sound.collectAsState()
     val haptics by Prefs.haptics.collectAsState()
     val canAuto = Perms.canAuto(ctx)
+    val places by Places.places.collectAsState()
+    var addingPlace by remember { mutableStateOf(false) }
+
+    if (addingPlace) {
+        SavePlaceDialog(title = "Save this spot", onDismiss = { addingPlace = false }) { name, kind ->
+            addingPlace = false
+            if (!Perms.location(ctx)) {
+                Toast.makeText(ctx, "Allow location first", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(ctx, "Getting your location…", Toast.LENGTH_SHORT).show()
+                currentLocation(ctx) { lat, lon ->
+                    if (lat == null || lon == null) Toast.makeText(ctx, "Couldn't get a GPS fix. Try outdoors.", Toast.LENGTH_LONG).show()
+                    else { Places.add(name, kind, lat, lon); Toast.makeText(ctx, "$name saved", Toast.LENGTH_SHORT).show() }
+                }
+            }
+        }
+    }
 
     fun openAppSettings() {
         ctx.startActivity(
@@ -115,6 +139,41 @@ fun SettingsTab() {
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
                 modifier = Modifier.fillMaxWidth(),
             )
+        }
+
+        Spacer(Modifier.height(22.dp))
+        SectionLabel("Your places")
+        Spacer(Modifier.height(8.dp))
+        Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(32.dp)).background(Snow).padding(8.dp)) {
+            places.forEach { p ->
+                Row(Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Box(Modifier.size(42.dp).clip(CircleShape).background(Ink), contentAlignment = Alignment.Center) {
+                        Icon(p.kind.icon(), null, tint = Lime, modifier = Modifier.size(20.dp))
+                    }
+                    Spacer(Modifier.width(12.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text(p.name, style = MaterialTheme.typography.titleMedium, color = Ink)
+                        Text(p.kind.label, style = MaterialTheme.typography.bodySmall, color = Muted)
+                    }
+                    Box(
+                        Modifier.pressable { Places.remove(p.id) }.size(40.dp).clip(CircleShape).background(Mist),
+                        contentAlignment = Alignment.Center,
+                    ) { Icon(Icons.Rounded.Close, "Remove ${p.name}", tint = Ink, modifier = Modifier.size(18.dp)) }
+                }
+            }
+            Row(
+                Modifier.pressable { addingPlace = true }.fillMaxWidth().clip(RoundedCornerShape(24.dp)).padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Box(Modifier.size(42.dp).clip(CircleShape).background(Lime), contentAlignment = Alignment.Center) {
+                    Icon(Icons.Rounded.Add, null, tint = Ink, modifier = Modifier.size(20.dp))
+                }
+                Spacer(Modifier.width(12.dp))
+                Column(Modifier.weight(1f)) {
+                    Text("Add where I am now", style = MaterialTheme.typography.titleMedium, color = Ink)
+                    Text("Stand at Home or Office and tap — or tap O / X on any trip", style = MaterialTheme.typography.bodySmall, color = Muted)
+                }
+            }
         }
 
         Spacer(Modifier.height(22.dp))
@@ -162,6 +221,22 @@ fun SettingsTab() {
         }
 
         Spacer(Modifier.height(22.dp))
+        SectionLabel("Fuel cost (optional)")
+        Spacer(Modifier.height(8.dp))
+        Column(
+            Modifier.fillMaxWidth().clip(RoundedCornerShape(32.dp)).background(Snow).padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Text(
+                "Add today's petrol price and your mileage — OX estimates the fuel each trip used.",
+                style = MaterialTheme.typography.bodySmall, color = Muted,
+            )
+            NumberRow("Petrol price", "₹ / litre", Prefs.fuelPrice.collectAsState().value) { Prefs.setFuelPrice(it) }
+            NumberRow("Bike mileage", "km / litre", Prefs.bikeKmpl.collectAsState().value) { Prefs.setBikeKmpl(it) }
+            NumberRow("Car mileage", "km / litre", Prefs.carKmpl.collectAsState().value) { Prefs.setCarKmpl(it) }
+        }
+
+        Spacer(Modifier.height(22.dp))
         SectionLabel("Feel")
         Spacer(Modifier.height(8.dp))
         Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(32.dp)).background(Snow).padding(8.dp)) {
@@ -173,7 +248,7 @@ fun SettingsTab() {
         Column(
             Modifier.fillMaxWidth().clip(RoundedCornerShape(36.dp)).background(Ink).padding(24.dp)
         ) {
-            OxWordmark(72.sp, Lime)
+            OxLogo(40.dp, Lime)
             Spacer(Modifier.height(16.dp))
             Text("OX · origin to destination", style = MaterialTheme.typography.titleMedium, color = Snow)
             Text("Version ${BuildConfig.VERSION_NAME}", style = MaterialTheme.typography.bodySmall, color = Snow.copy(alpha = 0.5f))
@@ -219,5 +294,42 @@ fun OxSwitch(on: Boolean) {
     val x by animateDpAsState(if (on) 24.dp else 0.dp, spring(dampingRatio = 0.55f, stiffness = 500f), label = "x")
     Box(Modifier.width(56.dp).height(32.dp).clip(RoundedCornerShape(50)).background(track).padding(4.dp)) {
         Box(Modifier.offset(x = x).size(24.dp).clip(CircleShape).background(knob))
+    }
+}
+
+@android.annotation.SuppressLint("MissingPermission")
+private fun currentLocation(ctx: android.content.Context, done: (Double?, Double?) -> Unit) {
+    runCatching {
+        com.google.android.gms.location.LocationServices.getFusedLocationProviderClient(ctx)
+            .getCurrentLocation(com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY, null)
+            .addOnSuccessListener { loc -> done(loc?.latitude, loc?.longitude) }
+            .addOnFailureListener { done(null, null) }
+    }.onFailure { done(null, null) }
+}
+
+@Composable
+private fun NumberRow(label: String, unit: String, value: Float, onChange: (Float) -> Unit) {
+    var text by remember { mutableStateOf(if (value > 0f) (if (value % 1f == 0f) value.toInt().toString() else value.toString()) else "") }
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Column(Modifier.weight(1f)) {
+            Text(label, style = MaterialTheme.typography.titleMedium, color = Ink)
+            Text(unit, style = MaterialTheme.typography.bodySmall, color = Muted)
+        }
+        Box(Modifier.width(110.dp).clip(RoundedCornerShape(18.dp)).background(Mist).padding(horizontal = 16.dp, vertical = 12.dp)) {
+            if (text.isEmpty()) Text("0", style = MaterialTheme.typography.titleMedium, color = Muted)
+            BasicTextField(
+                value = text,
+                onValueChange = { v ->
+                    val clean = v.filter { it.isDigit() || it == '.' }.take(6)
+                    text = clean
+                    onChange(clean.toFloatOrNull() ?: 0f)
+                },
+                singleLine = true,
+                textStyle = MaterialTheme.typography.titleMedium.copy(color = Ink),
+                cursorBrush = SolidColor(Ink),
+                keyboardOptions = KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Decimal),
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
     }
 }

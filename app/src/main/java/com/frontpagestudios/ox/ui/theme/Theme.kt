@@ -24,6 +24,7 @@ val Snow = Color(0xFFFFFFFF)
 val Mist = Color(0xFFE3E3DE)
 val Muted = Color(0xFF8C8C86)
 val Danger = Color(0xFFFF5A4E)
+val Amber = Color(0xFFFFB020)
 const val LimeArgb = 0xFFD2F53C.toInt()
 
 @OptIn(ExperimentalTextApi::class)

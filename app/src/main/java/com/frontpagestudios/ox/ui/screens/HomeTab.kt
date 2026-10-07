@@ -70,7 +70,7 @@ import com.frontpagestudios.ox.util.Perms
 import kotlinx.coroutines.delay
 
 @Composable
-fun HomeTab(nav: NavHostController, openTab: (Int) -> Unit) {
+private fun HomeTabBody(nav: NavHostController, openTab: (Int) -> Unit) {
     val ctx = LocalContext.current
     val trips by TripRepo.trips.collectAsState()
     val live by TrackingState.live.collectAsState()
@@ -93,12 +93,12 @@ fun HomeTab(nav: NavHostController, openTab: (Int) -> Unit) {
             Box(
                 Modifier.size(46.dp).clip(CircleShape).background(Ink),
                 contentAlignment = Alignment.Center,
-            ) { com.frontpagestudios.ox.ui.components.OxWordmark(17.sp, Lime) }
+            ) { com.frontpagestudios.ox.ui.components.OxLogo(10.dp, Lime) }
             Spacer(Modifier.weight(1f))
             Chip(Format.fullDate(System.currentTimeMillis()), bg = Snow)
             Spacer(Modifier.width(8.dp))
             Box(
-                Modifier.pressable { openTab(3) }.size(46.dp).clip(CircleShape).background(Lime),
+                Modifier.pressable { openTab(4) }.size(46.dp).clip(CircleShape).background(Lime),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
@@ -208,6 +208,15 @@ fun HomeTab(nav: NavHostController, openTab: (Int) -> Unit) {
         }
         Spacer(Modifier.height(14.dp))
 
+        // usual route
+        val usual = remember(trips) { com.frontpagestudios.ox.data.RouteBook.groups(trips).firstOrNull { it.count >= 2 } }
+        if (usual != null) {
+            Reveal(320) {
+                RouteCard(usual, featured = true) { nav.navigate(routeLink(usual.key)) }
+            }
+            Spacer(Modifier.height(10.dp))
+        }
+
         // tiles
         Reveal(360) {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -219,12 +228,12 @@ fun HomeTab(nav: NavHostController, openTab: (Int) -> Unit) {
                     val (v, u) = Format.durationParts(week.avgTime)
                     StatTile(
                         v, u, "Avg commute time", Modifier.weight(1f), dark = true,
-                        icon = Icons.Rounded.Timer, onClick = { openTab(2) },
+                        icon = Icons.Rounded.Timer, onClick = { openTab(3) },
                     )
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     val (dv, du) = Format.distanceParts(weekAll.totalDist)
-                    StatTile(dv, du, "Distance this week", Modifier.weight(1f), onClick = { openTab(2) })
+                    StatTile(dv, du, "Distance this week", Modifier.weight(1f), onClick = { openTab(3) })
                     val walks = weekAll.trips.count { it.mode == TripMode.WALK }
                     StatTile(
                         "$walks", null, "Walks this week", Modifier.weight(1f), lime = true,
@@ -232,7 +241,7 @@ fun HomeTab(nav: NavHostController, openTab: (Int) -> Unit) {
                     )
                 }
                 Row(
-                    Modifier.pressable { openTab(3) }.fillMaxWidth().clip(RoundedCornerShape(32.dp)).background(Snow)
+                    Modifier.pressable { openTab(4) }.fillMaxWidth().clip(RoundedCornerShape(32.dp)).background(Snow)
                         .padding(18.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
@@ -258,4 +267,10 @@ fun HomeTab(nav: NavHostController, openTab: (Int) -> Unit) {
         }
         Spacer(Modifier.height(140.dp))
     }
+}
+
+@Composable
+fun HomeTab(nav: NavHostController, openTab: (Int) -> Unit) {
+    val places by com.frontpagestudios.ox.data.Places.places.collectAsState()
+    androidx.compose.runtime.key(places) { HomeTabBody(nav, openTab) }
 }

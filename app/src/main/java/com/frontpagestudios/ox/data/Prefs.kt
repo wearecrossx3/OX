@@ -20,6 +20,12 @@ object Prefs {
     val sound: StateFlow<Boolean> = _sound
     private val _haptics = MutableStateFlow(true)
     val haptics: StateFlow<Boolean> = _haptics
+    private val _bikeKmpl = MutableStateFlow(45f)
+    val bikeKmpl: StateFlow<Float> = _bikeKmpl
+    private val _carKmpl = MutableStateFlow(15f)
+    val carKmpl: StateFlow<Float> = _carKmpl
+    private val _fuelPrice = MutableStateFlow(0f)
+    val fuelPrice: StateFlow<Float> = _fuelPrice
 
     fun init(context: Context) {
         if (::sp.isInitialized) return
@@ -30,6 +36,9 @@ object Prefs {
         _vehicle.value = runCatching { TripMode.valueOf(sp.getString("vehicle", "BIKE")!!) }.getOrDefault(TripMode.BIKE)
         _sound.value = sp.getBoolean("sound", true)
         _haptics.value = sp.getBoolean("haptics", true)
+        _bikeKmpl.value = sp.getFloat("bikeKmpl", 45f)
+        _carKmpl.value = sp.getFloat("carKmpl", 15f)
+        _fuelPrice.value = sp.getFloat("fuelPrice", 0f)
     }
 
     fun setOnboarded(v: Boolean) { _onboarded.value = v; sp.edit().putBoolean("onboarded", v).apply() }
@@ -37,5 +46,18 @@ object Prefs {
     fun setAutoDetect(v: Boolean) { _autoDetect.value = v; sp.edit().putBoolean("autoDetect", v).apply() }
     fun setVehicle(v: TripMode) { _vehicle.value = v; sp.edit().putString("vehicle", v.name).apply() }
     fun setSound(v: Boolean) { _sound.value = v; sp.edit().putBoolean("sound", v).apply() }
+    fun setBikeKmpl(v: Float) { _bikeKmpl.value = v; sp.edit().putFloat("bikeKmpl", v).apply() }
+    fun setCarKmpl(v: Float) { _carKmpl.value = v; sp.edit().putFloat("carKmpl", v).apply() }
+    fun setFuelPrice(v: Float) { _fuelPrice.value = v; sp.edit().putFloat("fuelPrice", v).apply() }
+
+    /** Fuel cost in rupees for a distance, or null when no price is set / walking. */
+    fun fuelCost(mode: TripMode, meters: Double): Double? {
+        val price = _fuelPrice.value
+        if (price <= 0f || mode == TripMode.WALK) return null
+        val kmpl = if (mode == TripMode.CAR) _carKmpl.value else _bikeKmpl.value
+        if (kmpl <= 0f) return null
+        return meters / 1000.0 / kmpl * price
+    }
+
     fun setHaptics(v: Boolean) { _haptics.value = v; sp.edit().putBoolean("haptics", v).apply() }
 }
