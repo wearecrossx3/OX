@@ -1,0 +1,40 @@
+e: file:///home/runner/work/OX/OX/app/build.gradle.kts:9:25: Unresolved reference: util
+e: file:///home/runner/work/OX/OX/app/build.gradle.kts:11:43: Unresolved reference: load
+gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/__run-1791359178336.json
+
+FAILURE: Build failed with an exception.
+--
+* What went wrong:
+Script compilation errors:
+
+  Line 09: val signingProps = java.util.Properties().apply {
+Starting a Gradle Daemon (subsequent builds will be faster)
+
+> Configure project :app
+e: file:///home/runner/work/OX/OX/app/build.gradle.kts:9:25: Unresolved reference: util
+e: file:///home/runner/work/OX/OX/app/build.gradle.kts:11:43: Unresolved reference: load
+gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/__run-1791359178336.json
+
+FAILURE: Build failed with an exception.
+
+* Where:
+Build file '/home/runner/work/OX/OX/app/build.gradle.kts' line: 9
+
+* What went wrong:
+Script compilation errors:
+
+  Line 09: val signingProps = java.util.Properties().apply {
+                                   ^ Unresolved reference: util
+
+  Line 11:     if (f.exists()) f.inputStream().use { load(it) }
+                                                     ^ Unresolved reference: load
+
+2 errors
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 13s
